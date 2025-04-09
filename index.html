@@ -114,6 +114,26 @@
         alert("❗️เลขซ้ำ กรุณากรอกใหม่");
         return;
       }
+function win() {
+  const input = document.getElementById("input").value.trim();
+
+  // ✅ ตรวจสอบไม่ให้เกิน 7 ตัว
+  if (input.length > 7) {
+    alert("⚠️ วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
+    return;
+  }
+
+  // ✅ ตรวจสอบเลขซ้ำ
+  if (hasDuplicates(input)) {
+    alert("❗ เลขซ้ำ กรุณากรอกใหม่");
+    return;
+  }
+
+  // … ส่วนที่เหลือของการวินเลขยังอยู่เหมือนเดิม
+}
+function hasDuplicates(str) {
+  return new Set(str).size !== str.length;
+}
 
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
