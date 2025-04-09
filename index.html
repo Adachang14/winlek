@@ -117,7 +117,6 @@
       if (input.length > 7) {
         alert("วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
         return;
-       }
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
@@ -128,12 +127,19 @@
       // วิน 3 ตัว ไม่รวมเบิ้ล
       const win3NoDup = getUniqueCombinations(digits, 3, false);
       addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
-
-      // วิน 2 ตัว รวมเบิ้ล
-      const win2WithDup = getAllPairsWithDupes(digits);
-      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
-
-      // วิน 3 ตัว รวมเบิ้ล
+       // 2 ตัวไม่รวมเบิ้ล
+  for (let i = 0; i < digits.length; i++) {
+    for (let j = 0; j < digits.length; j++) {
+      const a = digits[i], b = digits[j];
+      if (a !== b) {
+        const combo = [a, b].sort().join('');
+        if (!result["2noDup"].includes(combo)) {
+          result["2noDup"].push(combo);
+        }
+      }
+    }
+  }
+    // วิน 3 ตัว รวมเบิ้ล
       const win3WithDup = [];
       for (let i = 0; i < digits.length; i++) {
         for (let j = 0; j < digits.length; j++) {
@@ -142,73 +148,48 @@
           }
         }
       }
+      // วิน 2 ตัว รวมเบิ้ล
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+
+      
       const unique3WithDup = [...new Set(win3WithDup)];
       addResult("เลข 3 ตัว รวมเบิ้ล", unique3WithDup);
     }
 
-     const digits = input.split("");
-      const result = {
-        nonDup3: [], dup3: [],
-        nonDup2: [], dup2: []
-      };
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
 
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          const pair = digits[i] + digits[j];
-          result.nonDup2.push(pair);
+      const uid = Math.random().toString(36).substr(2, 5); // unique ID
 
-          for (let k = j + 1; k < digits.length; k++) {
-            const triplet = digits[i] + digits[j] + digits[k];
-            result.nonDup3.push(triplet);
-          }
-        }
-      }
-
-      // รวมเบิ้ล
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = 0; j < digits.length; j++) {
-          for (let k = 0; k < digits.length; k++) {
-            const triplet = digits[i] + digits[j] + digits[k];
-            result.dup3.push(triplet);
-          }
-          const pair = digits[i] + digits[j];
-          result.dup2.push(pair);
-        }
-      }
-
-      const display = (label, id, list) => {
-        return `
-          <div>
-            <strong>${label}</strong>
-            <p id="${id}">${[...new Set(list)].sort().join(" ")}</p>
-            <button onclick="copyToClipboard('${id}', this)">คัดลอก</button>
-            <span class="copied-msg">คัดลอกแล้ว!</span>
-          </div>
-          <br>
-        `;
-      };
-
-      document.getElementById("results").innerHTML = `
-        <strong>เลขเด่น ${input}</strong>
-        <br><br>
-        ${display("เลข 3 ตัว ไม่รวมเบิ้ล", "nonDup3", result.nonDup3)}
-        ${display("เลข 2 ตัว ไม่รวมเบิ้ล", "nonDup2", result.nonDup2)}
-        ${display("เลข 3 ตัว รวมเบิ้ล", "dup3", result.dup3)}
-        ${display("เลข 2 ตัว รวมเบิ้ล", "dup2", result.dup2)}
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join('-')}</div>
+        <div>(รวม ${list.length} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
       `;
+      document.getElementById("results").appendChild(box);
     }
 
-    function hasDuplicates(str) {
-      return new Set(str).size !== str.length;
-    }
-
-    function copyToClipboard(elementId, button) {
-      const text = document.getElementById(elementId).textContent;
+    function copyText(text, uid) {
       navigator.clipboard.writeText(text).then(() => {
-        const msg = button.nextElementSibling;
-        msg.style.display = "inline";
-        setTimeout(() => msg.style.display = "none", 1500);
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
       });
+    }
+
+    function clearAll() {
+      document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        win();
+      }
     }
   </script>
 </body>
