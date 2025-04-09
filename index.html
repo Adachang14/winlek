@@ -1,57 +1,187 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>โปรแกรมวินเลข 2 ตัว</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>วินเลข</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Sarabun', sans-serif;
+      background: #e0f7fa;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
       padding: 20px;
       max-width: 500px;
       margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, button, textarea {
-      width: 100%;
-      font-size: 1.1em;
-      margin-top: 10px;
+    input[type="text"] {
+      width: 80%;
       padding: 8px;
+      margin: 10px 0;
+      font-size: 18px;
     }
-    textarea {
-      height: 200px;
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+    }
+    .result-box {
+      background-color: #d0f5d8;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: left;
+    }
+    .red { color: red; font-weight: bold; }
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #007bff;
     }
   </style>
 </head>
 <body>
-
-  <h2>โปรแกรมวินเลข 2 ตัว</h2>
-  <label for="inputNumber">ใส่เลขที่ต้องการวิน:</label>
-  <input type="text" id="inputNumber" placeholder="เช่น 123456">
-  <button onclick="generatePairs()">วินเลขเลย!</button>
-  <textarea id="outputArea" readonly placeholder="ผลลัพธ์จะแสดงที่นี่..."></textarea>
-  <button onclick="copyToClipboard()">📋 คัดลอกผลลัพธ์</button>
+  <div class="container">
+    <h3>โปรแกรมวินเลขจากหน้าไปหลัง<br>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</h3>
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" />
+    <div>
+      <button onclick="win()">วินเลข</button>
+      <button onclick="clearAll()">เริ่มใหม่</button>
+    </div>
+    <div id="results"></div>
+  </div>
 
   <script>
-    function generatePairs() {
-      const input = document.getElementById('inputNumber').value;
-      const digits = [...new Set(input.replace(/\D/g, '').split(''))]; // กรองเฉพาะตัวเลข ไม่ซ้ำ
-      const pairs = [];
+    function hasDuplicates(str) {
+      return /(.).*\1/.test(str);
+    }
 
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          pairs.push(digits[i] + digits[j]);
+    function getCombinations(arr, size, allowRepeat=false) {
+      let results = [];
+      const helper = (start, combo) => {
+        if (combo.length === size) {
+          results.push([...combo]);
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          if (allowRepeat) {
+            for (let j = 0; j < arr.length; j++) {
+              for (let k = 0; k < arr.length; k++) {
+                results.push([arr[i], arr[j], arr[k]]);
+              }
+              return;
+            }
+          }
+          helper(i + 1, combo.concat(arr[i]));
+        }
+      };
+      helper(0, []);
+      return results;
+    }
+
+    function getUniqueCombinations(arr, size, allowDuplicates = false) {
+      let result = [];
+
+      const combine = (current, start) => {
+        if (current.length === size) {
+          let str = current.join('');
+          if (allowDuplicates || !/(.).*?\1/.test(str)) {
+            result.push(str);
+          }
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          combine([...current, arr[i]], i + 1);
+        }
+      };
+
+      combine([], 0);
+      return result;
+    }
+
+    function getAllPairsWithDupes(arr) {
+      let pairs = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          pairs.push(arr[i] + arr[j]);
         }
       }
-
-      document.getElementById('outputArea').value = pairs.join('\n');
+      return pairs;
     }
 
-    function copyToClipboard() {
-      const output = document.getElementById('outputArea');
-      output.select();
-      document.execCommand('copy');
-      alert('คัดลอกผลลัพธ์แล้ว!');
+    function win() {
+      const input = document.getElementById("input").value.trim();
+      const digits = input.split("");
+
+      if (input.length < 3 || digits.length > 10) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
+        return;
+      }
+
+      if (hasDuplicates(input)) {
+        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
+        return;
+      }
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+        </div>
+      `;
+
+      // วิน 3 ตัว ไม่รวมเบิ้ล
+      const win3NoDup = getUniqueCombinations(digits, 3, false);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
+
+      // วิน 2 ตัว รวมเบิ้ล
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+
+      // วิน 3 ตัว รวมเบิ้ล
+      const win3WithDup = [];
+      for (let i = 0; i < digits.length; i++) {
+        for (let j = 0; j < digits.length; j++) {
+          for (let k = 0; k < digits.length; k++) {
+            win3WithDup.push(digits[i] + digits[j] + digits[k]);
+          }
+        }
+      }
+      const unique3WithDup = [...new Set(win3WithDup)];
+      addResult("เลข 3 ตัว รวมเบิ้ล", unique3WithDup);
+    }
+
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join('-')}</div>
+        <div>(รวม ${list.length} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`)">คัดลอก</button>
+      `;
+      document.getElementById("results").appendChild(box);
+    }
+
+    function clearAll() {
+      document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("คัดลอกแล้ว!");
+      });
     }
   </script>
-
 </body>
 </html>
