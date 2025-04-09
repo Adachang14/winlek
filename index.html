@@ -2,168 +2,130 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>วินเลข</title>
+  <title>โปรแกรมวินเลข</title>
   <style>
-    body {
-      font-family: 'Sarabun', sans-serif;
-      background: #e0f7fa;
-      text-align: center;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input[type="text"] {
-      width: 80%;
-      padding: 8px;
-      margin: 10px 0;
-      font-size: 18px;
-    }
-    button {
-      margin: 5px;
-      padding: 8px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #2196F3;
-      color: white;
-    }
-    .result-box {
-      background-color: #d0f5d8;
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 12px;
-      text-align: left;
-    }
-    .red { color: red; font-weight: bold; }
-    .copy-btn {
-      margin-top: 10px;
-      background-color: #007bff;
-    }
-    .copied-msg {
-      display: inline-block;
-      margin-left: 10px;
-      color: green;
-      font-weight: bold;
-    }
+    body { font-family: sans-serif; background: #eee; padding: 1rem; text-align: center; }
+    input[type="text"] { padding: 0.5rem; font-size: 1rem; width: 150px; text-align: center; }
+    .result-box { background: #ccffe0; border-radius: 10px; padding: 1rem; margin-top: 1rem; display: inline-block; }
+    .result-section { margin-bottom: 1rem; }
+    .result-section b { color: red; }
+    button { margin: 0.25rem; padding: 0.5rem 1rem; cursor: pointer; font-size: 1rem; }
+    .copied { color: green; font-size: 0.9rem; margin-left: 5px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h3>โปรแกรมวินเลขจากหน้าไปหลัง<br>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</h3>
-    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
-    <div>
-      <button onclick="win()">วินเลข</button>
-      <button onclick="clearAll()">เริ่มใหม่</button>
-    </div>
-    <div id="results"></div>
+  <h2>โปรแกรมวินเลขจากหน้ามาหลัง</h2>
+  <p>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</p>
+  <input type="text" id="input" maxlength="7" placeholder="เช่น 1234567" />
+  <div>
+    <button onclick="generate()">วินเลข</button>
   </div>
+  <div id="results"></div>
 
   <script>
-    function hasDuplicates(str) {
-      return /(.).*\1/.test(str);
+    document.getElementById("input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") generate();
+    });
+
+    function generate() {
+      const input = document.getElementById("input").value.trim();
+
+      if (input.length < 3) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว");
+        return;
+      }
+      if (input.length > 7) {
+        alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
+        return;
+      }
+      if (hasDuplicates(input)) {
+        alert("❗ เลขซ้ำ กรุณากรอกใหม่");
+        return;
+      }
+
+      const result2 = permute(input.split(''), 2);
+      const result3 = permute(input.split(''), 3);
+
+      const result2All = getAllCombos(input, 2);
+      const result3All = getAllCombos(input, 3);
+
+      document.getElementById("results").innerHTML = `
+        <div class="result-box">
+          <div><strong>เลขเด่น ${input}</strong></div><br>
+
+          <div class="result-section">
+            <div><b>เลข 3 ตัว ไม่รวมเบิ้ล</b></div>
+            ${formatResults(result3)}
+          </div>
+
+          <div class="result-section">
+            <div><b>เลข 2 ตัว ไม่รวมเบิ้ล</b></div>
+            ${formatResults(result2)}
+          </div>
+
+          <div class="result-section">
+            <div><b>เลข 3 ตัว รวมเบิ้ล</b></div>
+            ${formatResults(result3All)}
+          </div>
+
+          <div class="result-section">
+            <div><b>เลข 2 ตัว รวมเบิ้ล</b></div>
+            ${formatResults(result2All)}
+          </div>
+        </div>
+      `;
     }
 
-    function getUniqueCombinations(arr, size, allowDuplicates = false) {
-      let result = [];
+    function hasDuplicates(str) {
+      return new Set(str).size !== str.length;
+    }
 
-      const combine = (current, start) => {
-        if (current.length === size) {
-          let str = current.join('');
-          if (allowDuplicates || !/(.).*?\1/.test(str)) {
-            result.push(str);
-          }
+    function permute(arr, len) {
+      let results = new Set();
+      const generate = (prefix, rest) => {
+        if (prefix.length === len) {
+          results.add(prefix.join(""));
           return;
         }
-        for (let i = start; i < arr.length; i++) {
-          combine([...current, arr[i]], i + 1);
+        for (let i = 0; i < rest.length; i++) {
+          generate([...prefix, rest[i]], rest.slice(0, i).concat(rest.slice(i + 1)));
         }
       };
-
-      combine([], 0);
-      return result;
+      generate([], arr);
+      return Array.from(results).sort();
     }
 
-    function getAllPairsWithDupes(arr) {
-      let pairs = [];
-      for (let i = 0; i < arr.length; i++) {
-        for (let j = i; j < arr.length; j++) {
-          pairs.push(arr[i] + arr[j]);
+    function getAllCombos(str, len) {
+      let results = new Set();
+      const combine = (prefix, pos) => {
+        if (prefix.length === len) {
+          results.add(prefix);
+          return;
         }
-      }
-      return pairs;
-    }
-
- function win() {
-  const input = document.getElementById("input").value.trim();
-
-  if (input.length > 7) {
-    alert("⚠️ วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
-    return;
-  }
-
-  if (hasDuplicates(input)) {
-    alert("❗️เลขซ้ำ กรุณากรอกใหม่");
-    return;
-  }
-
-  const digits = input.split("");
-  const result2 = new Set(); // 2 ตัว ไม่รวมเบิ้ล
-  const result3 = new Set(); // 3 ตัว ไม่รวมเบิ้ล
-  const result2All = new Set(); // 2 ตัว รวมเบิ้ล
-  const result3All = new Set(); // 3 ตัว รวมเบิ้ล
-
-  // 2 ตัว
-  for (let i = 0; i < digits.length; i++) {
-    for (let j = 0; j < digits.length; j++) {
-      if (i === j) continue;
-      const pair = digits[i] + digits[j];
-      result2All.add(pair);
-      if (digits[i] !== digits[j]) {
-        result2.add(pair);
-      }
-    }
-  }
-
-  // 3 ตัว
-  for (let i = 0; i < digits.length; i++) {
-    for (let j = 0; j < digits.length; j++) {
-      for (let k = 0; k < digits.length; k++) {
-        if (i === j || i === k || j === k) continue;
-        const triplet = digits[i] + digits[j] + digits[k];
-        result3All.add(triplet);
-        if (digits[i] !== digits[j] && digits[i] !== digits[k] && digits[j] !== digits[k]) {
-          result3.add(triplet);
+        for (let i = pos; i < str.length; i++) {
+          combine(prefix + str[i], i);
         }
-      }
+      };
+      combine("", 0);
+      return Array.from(results).sort();
     }
-  }
 
-  document.getElementById("results").innerHTML = `
-    <div class="result-box">
-      <strong>เลขเด่น ${input}</strong>
-      <h4>เลข 3 ตัว ไม่รวมเบิ้ล</h4>
-      <p>${Array.from(result3).join(" ")}</p>
-      <h4>เลข 2 ตัว ไม่รวมเบิ้ล</h4>
-      <p>${Array.from(result2).join(" ")}</p>
-      <h4>เลข 3 ตัว รวมเบิ้ล</h4>
-      <p>${Array.from(result3All).join(" ")}</p>
-      <h4>เลข 2 ตัว รวมเบิ้ล</h4>
-      <p>${Array.from(result2All).join(" ")}</p>
-    </div>
-  `;
-}
+    function formatResults(arr) {
+      const joined = arr.join(" - ");
+      return `
+        <div>${joined} <br>(รวม ${arr.length} ชุด)</div>
+        <button onclick="copyToClipboard('${arr.join(' ')}', this)">คัดลอก</button>
+        <span class="copied"></span>
+      `;
+    }
 
-function hasDuplicates(str) {
-  return new Set(str).size !== str.length;
-}
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const span = btn.nextElementSibling;
+        span.textContent = "คัดลอกแล้ว!";
+        setTimeout(() => span.textContent = "", 2000);
+      });
+    }
   </script>
 </body>
 </html>
