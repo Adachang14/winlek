@@ -118,8 +118,10 @@
 
   // … ส่วนที่เหลือของการวินเลขยังอยู่เหมือนเดิม
 }
-
-
+function hasDuplicates(str) {
+  return new Set(str).size !== str.length;
+}
+    
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
