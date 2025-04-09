@@ -110,10 +110,19 @@
         return;
       }
 
-      if (hasDuplicates(input)) {
-        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
-        return;
-      }
+      const digits = input.split("").map(d => parseInt(d));
+
+// เช็คเลขซ้ำ
+if (hasDuplicate(digits)) {
+  alert("เลขซ้ำ กรุณากรอกใหม่");
+  return;
+}
+
+// เช็คจำนวนตัวเลขที่กรอกเกิน 7 ตัว
+if (digits.length > 7) {
+  alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
+  return;
+}
 
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
