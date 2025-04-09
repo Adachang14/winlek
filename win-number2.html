@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>โปรแกรมวินเลข 2 ตัว</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    input, button, textarea {
+      width: 100%;
+      font-size: 1.1em;
+      margin-top: 10px;
+      padding: 8px;
+    }
+    textarea {
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>โปรแกรมวินเลข 2 ตัว</h2>
+  <label for="inputNumber">ใส่เลขที่ต้องการวิน:</label>
+  <input type="text" id="inputNumber" placeholder="เช่น 123456">
+  <button onclick="generatePairs()">วินเลขเลย!</button>
+  <textarea id="outputArea" readonly placeholder="ผลลัพธ์จะแสดงที่นี่..."></textarea>
+  <button onclick="copyToClipboard()">📋 คัดลอกผลลัพธ์</button>
+
+  <script>
+    function generatePairs() {
+      const input = document.getElementById('inputNumber').value;
+      const digits = [...new Set(input.replace(/\D/g, '').split(''))]; // กรองเฉพาะตัวเลข ไม่ซ้ำ
+      const pairs = [];
+
+      for (let i = 0; i < digits.length; i++) {
+        for (let j = i + 1; j < digits.length; j++) {
+          pairs.push(digits[i] + digits[j]);
+        }
+      }
+
+      document.getElementById('outputArea').value = pairs.join('\n');
+    }
+
+    function copyToClipboard() {
+      const output = document.getElementById('outputArea');
+      output.select();
+      document.execCommand('copy');
+      alert('คัดลอกผลลัพธ์แล้ว!');
+    }
+  </script>
+
+</body>
+</html>
