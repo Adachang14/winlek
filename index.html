@@ -71,77 +71,51 @@
       return /(.).*\1/.test(str);
     }
 
-    function get3NoDup(digits) {
-      const res = [];
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          for (let k = j + 1; k < digits.length; k++) {
-            const combo = digits[i] + digits[j] + digits[k];
-            if (!/(.).*?\1/.test(combo)) {
-              res.push(combo);
-            }
+    function getUniqueCombinations(arr, size, allowDuplicates = false) {
+      let result = [];
+
+      const combine = (current, start) => {
+        if (current.length === size) {
+          let str = current.join('');
+          if (allowDuplicates || !/(.).*?\1/.test(str)) {
+            result.push(str);
+          }
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          combine([...current, arr[i]], i + 1);
+        }
+      };
+
+      combine([], 0);
+      return result;
+    }
+
+    function getAllPairsWithDupes(arr) {
+      let pairs = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          pairs.push(arr[i] + arr[j]);
+        }
+      }
+      return pairs;
+    }
+
+    function getThreeWithDupesOrdered(arr) {
+      let results = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          for (let k = j; k < arr.length; k++) {
+            results.push(arr[i] + arr[j] + arr[k]);
           }
         }
       }
-      return res;
+      return results;
     }
 
-    function get2NoDup(digits) {
-      const res = [];
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          const pair = digits[i] + digits[j];
-          if (digits[i] !== digits[j]) res.push(pair);
-        }
-      }
-      return res;
-    }
-
-    function get3WithDup(digits) {
-      const res = new Set();
-      for (let i = 0; i < digits.length; i++) {
-        const a = digits[i];
-        res.add(a + a + a);
-        for (let j = 0; j < digits.length; j++) {
-          const b = digits[j];
-          if (a !== b) {
-            res.add(a + a + b);
-            res.add(a + b + a);
-            res.add(b + a + a);
-          }
-        }
-      }
-      return [...res];
-    }
-
-    function get2WithDup(digits) {
-      const res = [];
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i; j < digits.length; j++) {
-          res.push(digits[i] + digits[j]);
-        }
-      }
-      return res;
-    }
-
-    function convertToThaiNum(num) {
-      const thNums = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
-      return num.toString().split('').map(d => thNums[+d]).join('');
-    }
-
-    function addResult(title, list) {
-      const box = document.createElement("div");
-      box.className = "result-box";
-      const uid = Math.random().toString(36).substr(2, 5);
-
-      box.innerHTML = `
-        <div><strong>${title}</strong></div>
-        <div class="red">${list.join('-')}</div>
-        <div>(รวม ${convertToThaiNum(list.length)} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
-        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-      `;
-      document.getElementById("results").appendChild(box);
+    function toThaiNumber(num) {
+      const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+      return num.toString().split('').map(d => thaiDigits[d]).join('');
     }
 
     function win() {
@@ -159,12 +133,39 @@
       }
 
       const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = `<div class="result-box"><strong>เลขเด่น ${input}</strong></div>`;
+      resultsDiv.innerHTML = `
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+        </div>
+      `;
 
-      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", get3NoDup(digits));
-      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", get2NoDup(digits));
-      addResult("เลข 3 ตัว รวมเบิ้ล", get3WithDup(digits));
-      addResult("เลข 2 ตัว รวมเบิ้ล", get2WithDup(digits));
+      const win3NoDup = getUniqueCombinations(digits, 3, false);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
+
+      const win2NoDup = getUniqueCombinations(digits, 2, false);
+      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
+
+      const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
+      addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
+
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+    }
+
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
+
+      const uid = Math.random().toString(36).substr(2, 5);
+
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join('-')}</div>
+        <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+      `;
+      document.getElementById("results").appendChild(box);
     }
 
     function copyText(text, uid) {
@@ -181,7 +182,9 @@
     }
 
     function checkEnter(event) {
-      if (event.key === "Enter") win();
+      if (event.key === "Enter") {
+        win();
+      }
     }
   </script>
 </body>
