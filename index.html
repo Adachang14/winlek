@@ -101,86 +101,69 @@
       return pairs;
     }
 
-    function win() {
-      const input = document.getElementById("input").value.trim();
-      const digits = input.split("");
+ function win() {
+  const input = document.getElementById("input").value.trim();
 
-      if (input.length < 3 || digits.length > 10) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 7 ตัว");
-        return;
+  if (input.length > 7) {
+    alert("⚠️ วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
+    return;
+  }
+
+  if (hasDuplicates(input)) {
+    alert("❗️เลขซ้ำ กรุณากรอกใหม่");
+    return;
+  }
+
+  const digits = input.split("");
+  const result2 = new Set(); // 2 ตัว ไม่รวมเบิ้ล
+  const result3 = new Set(); // 3 ตัว ไม่รวมเบิ้ล
+  const result2All = new Set(); // 2 ตัว รวมเบิ้ล
+  const result3All = new Set(); // 3 ตัว รวมเบิ้ล
+
+  // 2 ตัว
+  for (let i = 0; i < digits.length; i++) {
+    for (let j = 0; j < digits.length; j++) {
+      if (i === j) continue;
+      const pair = digits[i] + digits[j];
+      result2All.add(pair);
+      if (digits[i] !== digits[j]) {
+        result2.add(pair);
       }
+    }
+  }
 
-      if (hasDuplicates(input)) {
-        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
-        return;
-      }
-      if (digits.length > 7) {
-        alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
-        return;
-       }
-
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = `
-        <div class="result-box">
-          <strong>เลขเด่น ${input}</strong>
-        </div>
-      `;
-
-      // วิน 3 ตัว ไม่รวมเบิ้ล
-      const win3NoDup = getUniqueCombinations(digits, 3, false);
-      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
-
-      // วิน 2 ตัว รวมเบิ้ล
-      const win2WithDup = getAllPairsWithDupes(digits);
-      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
-
-      // วิน 3 ตัว รวมเบิ้ล
-      const win3WithDup = [];
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = 0; j < digits.length; j++) {
-          for (let k = 0; k < digits.length; k++) {
-            win3WithDup.push(digits[i] + digits[j] + digits[k]);
-          }
+  // 3 ตัว
+  for (let i = 0; i < digits.length; i++) {
+    for (let j = 0; j < digits.length; j++) {
+      for (let k = 0; k < digits.length; k++) {
+        if (i === j || i === k || j === k) continue;
+        const triplet = digits[i] + digits[j] + digits[k];
+        result3All.add(triplet);
+        if (digits[i] !== digits[j] && digits[i] !== digits[k] && digits[j] !== digits[k]) {
+          result3.add(triplet);
         }
       }
-      const unique3WithDup = [...new Set(win3WithDup)];
-      addResult("เลข 3 ตัว รวมเบิ้ล", unique3WithDup);
     }
+  }
 
-    function addResult(title, list) {
-      const box = document.createElement("div");
-      box.className = "result-box";
+  document.getElementById("results").innerHTML = `
+    <div class="result-box">
+      <strong>เลขเด่น ${input}</strong>
+      <h4>เลข 3 ตัว ไม่รวมเบิ้ล</h4>
+      <p>${Array.from(result3).join(" ")}</p>
+      <h4>เลข 2 ตัว ไม่รวมเบิ้ล</h4>
+      <p>${Array.from(result2).join(" ")}</p>
+      <h4>เลข 3 ตัว รวมเบิ้ล</h4>
+      <p>${Array.from(result3All).join(" ")}</p>
+      <h4>เลข 2 ตัว รวมเบิ้ล</h4>
+      <p>${Array.from(result2All).join(" ")}</p>
+    </div>
+  `;
+}
 
-      const uid = Math.random().toString(36).substr(2, 5); // unique ID
-
-      box.innerHTML = `
-        <div><strong>${title}</strong></div>
-        <div class="red">${list.join('-')}</div>
-        <div>(รวม ${list.length} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
-        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-      `;
-      document.getElementById("results").appendChild(box);
-    }
-
-    function copyText(text, uid) {
-      navigator.clipboard.writeText(text).then(() => {
-        const msg = document.getElementById("copied-" + uid);
-        msg.style.display = "inline-block";
-        setTimeout(() => msg.style.display = "none", 2000);
-      });
-    }
-
-    function clearAll() {
-      document.getElementById("input").value = "";
-      document.getElementById("results").innerHTML = "";
-    }
-
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        win();
-      }
-    }
+function hasDuplicates(str) {
+  return new Set(str).size !== str.length;
+}
   </script>
 </body>
 </html>
