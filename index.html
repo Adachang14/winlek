@@ -101,19 +101,24 @@
       return pairs;
     }
 
-    function win() {
-      const input = document.getElementById("input").value.trim();
-      const digits = input.split("");
+   function win() {
+  const input = document.getElementById("input").value.trim();
 
-      if (input.length < 3 || digits.length > 10) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
-        return;
-      }
+  // ✅ ตรวจสอบไม่ให้เกิน 7 ตัว
+  if (input.length > 7) {
+    alert("⚠️ วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
+    return;
+  }
 
-      if (hasDuplicates(input)) {
-        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
-        return;
-      }
+  // ✅ ตรวจสอบเลขซ้ำ
+  if (hasDuplicates(input)) {
+    alert("❗ เลขซ้ำ กรุณากรอกใหม่");
+    return;
+  }
+
+  // … ส่วนที่เหลือของการวินเลขยังอยู่เหมือนเดิม
+}
+
 
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
