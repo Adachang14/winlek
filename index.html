@@ -1,51 +1,29 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>วินเลข</title>
+  <meta charset="UTF-8" />
+  <title>โปรแกรมวินเลข</title>
   <style>
-    body {
-      font-family: Tahoma, sans-serif;
-      text-align: center;
-      background-color: #f0f8ff;
-    }
-    .container {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 500px;
-    }
-    .results {
-      background-color: #ccffcc;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 10px;
-      text-align: left;
-    }
-    .copied-msg {
-      display: none;
-      color: green;
-      margin-left: 10px;
-    }
-    button {
-      margin-top: 5px;
-    }
+    body { font-family: sans-serif; background: #eef; text-align: center; }
+    .result-box { background: #cfc; margin: 20px auto; padding: 10px; border-radius: 10px; width: 90%; max-width: 400px; }
+    .result-box h3 { margin: 10px 0 5px; }
+    .copy-btn { margin: 5px; padding: 5px 10px; background: #09f; color: white; border: none; cursor: pointer; }
+    .copied { color: green; font-size: 0.9em; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>โปรแกรมวินเลขจากหน้าไปหลัง</h2>
-    <input type="text" id="input" placeholder="ป้อนเลข เช่น 123456" maxlength="7" onkeypress="if(event.key === 'Enter') win()">
-    <br><br>
-    <button onclick="win()">วินเลข</button>
+  <h2>โปรแกรมวินเลขจากหน้าไปหลัง</h2>
+  <input id="input" placeholder="ป้อนเลขเด่น" maxlength="7" onkeydown="if(event.key==='Enter') win()" />
+  <button onclick="win()">วินเลข</button>
 
-    <div class="results" id="results"></div>
-  </div>
+  <div id="results"></div>
 
   <script>
     function win() {
       const input = document.getElementById("input").value.trim();
+
       if (input.length > 7) {
-        alert("วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
+        alert("วินได้สูงสุด 7 ตัว");
         return;
       }
       if (hasDuplicates(input)) {
@@ -54,54 +32,72 @@
       }
 
       const digits = input.split("");
-      const result = {
-        nonDup3: [], dup3: [],
-        nonDup2: [], dup2: []
-      };
+      const set = new Set(digits);
+      const result2 = [];
+      const result2All = [];
+      const result3 = [];
+      const result3All = [];
 
+      // 2 ตัว ไม่รวมเบิ้ล
       for (let i = 0; i < digits.length; i++) {
         for (let j = i + 1; j < digits.length; j++) {
-          const pair = digits[i] + digits[j];
-          result.nonDup2.push(pair);
+          result2.push(digits[i] + digits[j]);
+        }
+      }
 
+      // 2 ตัว รวมเบิ้ล
+      for (let i = 0; i < digits.length; i++) {
+        for (let j = 0; j < digits.length; j++) {
+          if (i !== j) result2All.push(digits[i] + digits[j]);
+        }
+      }
+
+      // 3 ตัว ไม่รวมเบิ้ล
+      for (let i = 0; i < digits.length; i++) {
+        for (let j = i + 1; j < digits.length; j++) {
           for (let k = j + 1; k < digits.length; k++) {
-            const triplet = digits[i] + digits[j] + digits[k];
-            result.nonDup3.push(triplet);
+            result3.push(digits[i] + digits[j] + digits[k]);
           }
         }
       }
 
-      // รวมเบิ้ล
+      // 3 ตัว รวมเบิ้ล (custom logic)
       for (let i = 0; i < digits.length; i++) {
         for (let j = 0; j < digits.length; j++) {
           for (let k = 0; k < digits.length; k++) {
-            const triplet = digits[i] + digits[j] + digits[k];
-            result.dup3.push(triplet);
+            let a = digits[i], b = digits[j], c = digits[k];
+            let arr = [a, b, c];
+            let set = new Set(arr);
+            if (set.size < 3) {
+              result3All.push(a + b + c);
+            }
           }
-          const pair = digits[i] + digits[j];
-          result.dup2.push(pair);
         }
       }
 
-      const display = (label, id, list) => {
-        return `
-          <div>
-            <strong>${label}</strong>
-            <p id="${id}">${[...new Set(list)].sort().join(" ")}</p>
-            <button onclick="copyToClipboard('${id}', this)">คัดลอก</button>
-            <span class="copied-msg">คัดลอกแล้ว!</span>
-          </div>
-          <br>
-        `;
-      };
+      result3All.sort();
+      result3All = [...new Set(result3All)];
 
       document.getElementById("results").innerHTML = `
-        <strong>เลขเด่น ${input}</strong>
-        <br><br>
-        ${display("เลข 3 ตัว ไม่รวมเบิ้ล", "nonDup3", result.nonDup3)}
-        ${display("เลข 2 ตัว ไม่รวมเบิ้ล", "nonDup2", result.nonDup2)}
-        ${display("เลข 3 ตัว รวมเบิ้ล", "dup3", result.dup3)}
-        ${display("เลข 2 ตัว รวมเบิ้ล", "dup2", result.dup2)}
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+
+          <h3>เลข 3 ตัว ไม่รวมเบิ้ล</h3>
+          <div>${result3.join(" ")}</div>
+          <button class="copy-btn" onclick="copyText('${result3.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+
+          <h3>เลข 2 ตัว ไม่รวมเบิ้ล</h3>
+          <div>${result2.join(" ")}</div>
+          <button class="copy-btn" onclick="copyText('${result2.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+
+          <h3>เลข 3 ตัว รวมเบิ้ล</h3>
+          <div>${result3All.join(" ")}</div>
+          <button class="copy-btn" onclick="copyText('${result3All.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+
+          <h3>เลข 2 ตัว รวมเบิ้ล</h3>
+          <div>${result2All.join(" ")}</div>
+          <button class="copy-btn" onclick="copyText('${result2All.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+        </div>
       `;
     }
 
@@ -109,13 +105,9 @@
       return new Set(str).size !== str.length;
     }
 
-    function copyToClipboard(elementId, button) {
-      const text = document.getElementById(elementId).textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const msg = button.nextElementSibling;
-        msg.style.display = "inline";
-        setTimeout(() => msg.style.display = "none", 1500);
-      });
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text);
+      btn.nextElementSibling.innerText = "คัดลอกแล้ว!";
     }
   </script>
 </body>
