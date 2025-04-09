@@ -47,12 +47,18 @@
       margin-top: 10px;
       background-color: #007bff;
     }
+    .copied-msg {
+      display: inline-block;
+      margin-left: 10px;
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h3>โปรแกรมวินเลขจากหน้าไปหลัง<br>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</h3>
-    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" />
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
     <div>
       <button onclick="win()">วินเลข</button>
       <button onclick="clearAll()">เริ่มใหม่</button>
@@ -63,29 +69,6 @@
   <script>
     function hasDuplicates(str) {
       return /(.).*\1/.test(str);
-    }
-
-    function getCombinations(arr, size, allowRepeat=false) {
-      let results = [];
-      const helper = (start, combo) => {
-        if (combo.length === size) {
-          results.push([...combo]);
-          return;
-        }
-        for (let i = start; i < arr.length; i++) {
-          if (allowRepeat) {
-            for (let j = 0; j < arr.length; j++) {
-              for (let k = 0; k < arr.length; k++) {
-                results.push([arr[i], arr[j], arr[k]]);
-              }
-              return;
-            }
-          }
-          helper(i + 1, combo.concat(arr[i]));
-        }
-      };
-      helper(0, []);
-      return results;
     }
 
     function getUniqueCombinations(arr, size, allowDuplicates = false) {
@@ -163,13 +146,25 @@
     function addResult(title, list) {
       const box = document.createElement("div");
       box.className = "result-box";
+
+      const uid = Math.random().toString(36).substr(2, 5); // unique ID
+
       box.innerHTML = `
         <div><strong>${title}</strong></div>
         <div class="red">${list.join('-')}</div>
         <div>(รวม ${list.length} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`)">คัดลอก</button>
+        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
       `;
       document.getElementById("results").appendChild(box);
+    }
+
+    function copyText(text, uid) {
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
     }
 
     function clearAll() {
@@ -177,10 +172,10 @@
       document.getElementById("results").innerHTML = "";
     }
 
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert("คัดลอกแล้ว!");
-      });
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        win();
+      }
     }
   </script>
 </body>
