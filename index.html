@@ -101,7 +101,7 @@
       return pairs;
     }
 
-   function win() {
+function win() {
   const input = document.getElementById("input").value.trim();
 
   // ✅ ตรวจสอบไม่ให้เกิน 7 ตัว
@@ -116,8 +116,28 @@
     return;
   }
 
-  // … ส่วนที่เหลือของการวินเลขยังอยู่เหมือนเดิม
+  // ✅ โค้ดวินเลขหลักต้องอยู่ "หลัง" if ทั้งหมดนี้
+
+  // ตัวอย่างเช่น:
+  const result2 = [];
+  const result3 = [];
+
+  for (let i = 0; i < input.length; i++) {
+    for (let j = i + 1; j < input.length; j++) {
+      let pair = input[i] + input[j];
+      result2.push(pair);
+      for (let k = j + 1; k < input.length; k++) {
+        let triplet = input[i] + input[j] + input[k];
+        result3.push(triplet);
+      }
+    }
+  }
+
+  // แสดงผลลัพธ์
+  document.getElementById("result2").textContent = result2.join(" ");
+  document.getElementById("result3").textContent = result3.join(" ");
 }
+
 function hasDuplicates(str) {
   return new Set(str).size !== str.length;
 }
