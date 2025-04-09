@@ -30,8 +30,9 @@
     function generate() {
       const input = document.getElementById("input").value.trim();
 
-      if (input.length < 3) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว");
+      if (input.length < 3 || digits.length > 10) {
+
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 7 ตัว");
         return;
       }
       if (input.length > 7) {
