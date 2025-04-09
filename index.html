@@ -43,6 +43,7 @@
       text-align: left;
     }
     .red { color: red; font-weight: bold; }
+    .blue { color: blue; font-weight: bold; }
     .copy-btn {
       margin-top: 10px;
       background-color: #007bff;
@@ -58,7 +59,7 @@
 <body>
   <div class="container">
     <h3>โปรแกรมวินเลขจากหน้าไปหลัง<br>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</h3>
-    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="7" onkeypress="checkEnter(event)" />
     <div>
       <button onclick="win()">วินเลข</button>
       <button onclick="clearAll()">เริ่มใหม่</button>
@@ -67,106 +68,66 @@
   </div>
 
   <script>
+    const THAI_DIGITS = ['฀', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+    const toThaiNumber = n => [...String(n)].map(d => THAI_DIGITS[+d]).join('');
+
     function hasDuplicates(str) {
       return /(.).*\1/.test(str);
     }
 
-    function getUniqueCombinations(arr, size, allowDuplicates = false) {
-      let result = [];
-
-      const combine = (current, start) => {
-        if (current.length === size) {
-          let str = current.join('');
-          if (allowDuplicates || !/(.).*?\1/.test(str)) {
-            result.push(str);
+    function getCombinations(arr, size, allowDup = false) {
+      let result = new Set();
+      const permute = (prefix, chars) => {
+        if (prefix.length === size) {
+          if (allowDup || new Set(prefix).size === prefix.length) {
+            result.add(prefix.join(''));
           }
           return;
         }
-        for (let i = start; i < arr.length; i++) {
-          combine([...current, arr[i]], i + 1);
+        for (let i = 0; i < chars.length; i++) {
+          permute([...prefix, chars[i]], chars);
         }
       };
-
-      combine([], 0);
-      return result;
+      permute([], arr);
+      return [...result];
     }
 
-    function getAllPairsWithDupes(arr) {
-      let pairs = [];
+    function getPairs(arr, allowDup = false) {
+      let result = new Set();
       for (let i = 0; i < arr.length; i++) {
-        for (let j = i; j < arr.length; j++) {
-          pairs.push(arr[i] + arr[j]);
+        for (let j = 0; j < arr.length; j++) {
+          if (allowDup || arr[i] !== arr[j]) {
+            result.add(arr[i] + arr[j]);
+          }
         }
       }
-      return pairs;
+      return [...result];
     }
 
     function win() {
       const input = document.getElementById("input").value.trim();
+      if (input.length < 3) return alert("กรุณากรอกอย่างน้อย 3 ตัว");
+      if (input.length > 7) return alert("วินได้ไม่เกิน 7 ตัว");
+      if (hasDuplicates(input)) return alert("❗️เลขซ้ำ กรุณากรอกใหม่");
+
       const digits = input.split("");
-
-      if (input.length < 3 || digits.length > 10) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
-        return;
-      }
-
-      if (hasDuplicates(input)) {
-        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
-        return;
-      }
-      if (input.length > 7) {
-        alert("วินได้สูงสุดไม่เกิน 7 ตัวเท่านั้น");
-        return;
       const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = `
-        <div class="result-box">
-          <strong>เลขเด่น ${input}</strong>
-        </div>
-      `;
+      resultsDiv.innerHTML = `<div class="result-box"><strong>เลขเด่น ${input}</strong></div>`;
 
-      // วิน 3 ตัว ไม่รวมเบิ้ล
-      const win3NoDup = getUniqueCombinations(digits, 3, false);
-      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
-       // 2 ตัวไม่รวมเบิ้ล
-  for (let i = 0; i < digits.length; i++) {
-    for (let j = 0; j < digits.length; j++) {
-      const a = digits[i], b = digits[j];
-      if (a !== b) {
-        const combo = [a, b].sort().join('');
-        if (!result["2noDup"].includes(combo)) {
-          result["2noDup"].push(combo);
-        }
-      }
-    }
-  }
-    // วิน 3 ตัว รวมเบิ้ล
-      const win3WithDup = [];
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = 0; j < digits.length; j++) {
-          for (let k = 0; k < digits.length; k++) {
-            win3WithDup.push(digits[i] + digits[j] + digits[k]);
-          }
-        }
-      }
-      // วิน 2 ตัว รวมเบิ้ล
-      const win2WithDup = getAllPairsWithDupes(digits);
-      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
-
-      
-      const unique3WithDup = [...new Set(win3WithDup)];
-      addResult("เลข 3 ตัว รวมเบิ้ล", unique3WithDup);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", getCombinations(digits, 3, false), "red");
+      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", getPairs(digits, false), "blue");
+      addResult("เลข 3 ตัว รวมเบิ้ล", getCombinations(digits, 3, true), "red");
+      addResult("เลข 2 ตัว รวมเบิ้ล", getPairs(digits, true), "blue");
     }
 
-    function addResult(title, list) {
+    function addResult(title, list, colorClass) {
+      const uid = Math.random().toString(36).substring(2);
       const box = document.createElement("div");
       box.className = "result-box";
-
-      const uid = Math.random().toString(36).substr(2, 5); // unique ID
-
       box.innerHTML = `
         <div><strong>${title}</strong></div>
-        <div class="red">${list.join('-')}</div>
-        <div>(รวม ${list.length} ชุด)</div>
+        <div class="${colorClass}">${list.join('-')}</div>
+        <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
         <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
         <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
       `;
@@ -187,9 +148,7 @@
     }
 
     function checkEnter(event) {
-      if (event.key === "Enter") {
-        win();
-      }
+      if (event.key === "Enter") win();
     }
   </script>
 </body>
