@@ -4,99 +4,74 @@
   <meta charset="UTF-8" />
   <title>โปรแกรมวินเลข</title>
   <style>
-    body { font-family: sans-serif; background: #eef; text-align: center; }
-    .result-box { background: #cfc; margin: 20px auto; padding: 10px; border-radius: 10px; width: 90%; max-width: 400px; }
-    .result-box h3 { margin: 10px 0 5px; }
-    .copy-btn { margin: 5px; padding: 5px 10px; background: #09f; color: white; border: none; cursor: pointer; }
-    .copied { color: green; font-size: 0.9em; }
+    body { font-family: sans-serif; background: #eee; padding: 1rem; text-align: center; }
+    input[type="text"] { padding: 0.5rem; font-size: 1rem; width: 150px; text-align: center; }
+    .result-box { background: #ccffe0; border-radius: 10px; padding: 1rem; margin-top: 1rem; display: inline-block; }
+    .result-section { margin-bottom: 1rem; }
+    .result-section b { color: red; }
+    button { margin: 0.25rem; padding: 0.5rem 1rem; cursor: pointer; font-size: 1rem; }
+    .copied { color: green; font-size: 0.9rem; margin-left: 5px; }
   </style>
 </head>
 <body>
-  <h2>โปรแกรมวินเลขจากหน้าไปหลัง</h2>
-  <input id="input" placeholder="ป้อนเลขเด่น" maxlength="7" onkeydown="if(event.key==='Enter') win()" />
-  <button onclick="win()">วินเลข</button>
-
+  <h2>โปรแกรมวินเลขจากหน้ามาหลัง</h2>
+  <p>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</p>
+  <input type="text" id="input" maxlength="7" placeholder="เช่น 1234567" />
+  <div>
+    <button onclick="generate()">วินเลข</button>
+  </div>
   <div id="results"></div>
 
   <script>
-    function win() {
+    document.getElementById("input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") generate();
+    });
+
+    function generate() {
       const input = document.getElementById("input").value.trim();
 
+      if (input.length < 3) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว");
+        return;
+      }
       if (input.length > 7) {
-        alert("วินได้สูงสุด 7 ตัว");
+        alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
         return;
       }
       if (hasDuplicates(input)) {
-        alert("เลขซ้ำ กรุณากรอกใหม่");
+        alert("❗ เลขซ้ำ กรุณากรอกใหม่");
         return;
       }
 
-      const digits = input.split("");
-      const set = new Set(digits);
-      const result2 = [];
-      const result2All = [];
-      const result3 = [];
-      const result3All = [];
+      const result2 = permute(input.split(''), 2);
+      const result3 = permute(input.split(''), 3);
 
-      // 2 ตัว ไม่รวมเบิ้ล
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          result2.push(digits[i] + digits[j]);
-        }
-      }
-
-      // 2 ตัว รวมเบิ้ล
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = 0; j < digits.length; j++) {
-          if (i !== j) result2All.push(digits[i] + digits[j]);
-        }
-      }
-
-      // 3 ตัว ไม่รวมเบิ้ล
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = i + 1; j < digits.length; j++) {
-          for (let k = j + 1; k < digits.length; k++) {
-            result3.push(digits[i] + digits[j] + digits[k]);
-          }
-        }
-      }
-
-      // 3 ตัว รวมเบิ้ล (custom logic)
-      for (let i = 0; i < digits.length; i++) {
-        for (let j = 0; j < digits.length; j++) {
-          for (let k = 0; k < digits.length; k++) {
-            let a = digits[i], b = digits[j], c = digits[k];
-            let arr = [a, b, c];
-            let set = new Set(arr);
-            if (set.size < 3) {
-              result3All.push(a + b + c);
-            }
-          }
-        }
-      }
-
-      result3All.sort();
-      result3All = [...new Set(result3All)];
+      const result2All = getAllCombos(input, 2);
+      const result3All = getAllCombos(input, 3);
 
       document.getElementById("results").innerHTML = `
         <div class="result-box">
-          <strong>เลขเด่น ${input}</strong>
+          <div><strong>เลขเด่น ${input}</strong></div><br>
 
-          <h3>เลข 3 ตัว ไม่รวมเบิ้ล</h3>
-          <div>${result3.join(" ")}</div>
-          <button class="copy-btn" onclick="copyText('${result3.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+          <div class="result-section">
+            <div><b>เลข 3 ตัว ไม่รวมเบิ้ล</b></div>
+            ${formatResults(result3)}
+          </div>
 
-          <h3>เลข 2 ตัว ไม่รวมเบิ้ล</h3>
-          <div>${result2.join(" ")}</div>
-          <button class="copy-btn" onclick="copyText('${result2.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+          <div class="result-section">
+            <div><b>เลข 2 ตัว ไม่รวมเบิ้ล</b></div>
+            ${formatResults(result2)}
+          </div>
 
-          <h3>เลข 3 ตัว รวมเบิ้ล</h3>
-          <div>${result3All.join(" ")}</div>
-          <button class="copy-btn" onclick="copyText('${result3All.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+          <div class="result-section">
+            <div><b>เลข 3 ตัว รวมเบิ้ล</b></div>
+            ${formatResults(result3All)}
+          </div>
 
-          <h3>เลข 2 ตัว รวมเบิ้ล</h3>
-          <div>${result2All.join(" ")}</div>
-          <button class="copy-btn" onclick="copyText('${result2All.join(" ")}', this)">คัดลอก</button> <span class="copied"></span>
+          <div class="result-section">
+            <div><b>เลข 2 ตัว รวมเบิ้ล</b></div>
+            ${formatResults(result2All)}
+          </div>
         </div>
       `;
     }
@@ -105,9 +80,51 @@
       return new Set(str).size !== str.length;
     }
 
-    function copyText(text, btn) {
-      navigator.clipboard.writeText(text);
-      btn.nextElementSibling.innerText = "คัดลอกแล้ว!";
+    function permute(arr, len) {
+      let results = new Set();
+      const generate = (prefix, rest) => {
+        if (prefix.length === len) {
+          results.add(prefix.join(""));
+          return;
+        }
+        for (let i = 0; i < rest.length; i++) {
+          generate([...prefix, rest[i]], rest.slice(0, i).concat(rest.slice(i + 1)));
+        }
+      };
+      generate([], arr);
+      return Array.from(results).sort();
+    }
+
+    function getAllCombos(str, len) {
+      let results = new Set();
+      const combine = (prefix, pos) => {
+        if (prefix.length === len) {
+          results.add(prefix);
+          return;
+        }
+        for (let i = pos; i < str.length; i++) {
+          combine(prefix + str[i], i);
+        }
+      };
+      combine("", 0);
+      return Array.from(results).sort();
+    }
+
+    function formatResults(arr) {
+      const joined = arr.join(" - ");
+      return `
+        <div>${joined} <br>(รวม ${arr.length} ชุด)</div>
+        <button onclick="copyToClipboard('${arr.join(' ')}', this)">คัดลอก</button>
+        <span class="copied"></span>
+      `;
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const span = btn.nextElementSibling;
+        span.textContent = "คัดลอกแล้ว!";
+        setTimeout(() => span.textContent = "", 2000);
+      });
     }
   </script>
 </body>
