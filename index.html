@@ -106,7 +106,7 @@
       const digits = input.split("");
 
       if (input.length < 3 || digits.length > 10) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 7 ตัว");
         return;
       }
 
@@ -114,7 +114,10 @@
         alert("❗️เลขซ้ำ กรุณากรอกใหม่");
         return;
       }
-
+      if (digits.length > 7) {
+        alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
+        return;
+       }
 
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
