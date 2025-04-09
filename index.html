@@ -131,7 +131,10 @@
         alert("❗️เลขซ้ำ กรุณากรอกใหม่");
         return;
       }
-
+      if (input.length > 7) {
+        alert("วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
+        return;
+      }
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
