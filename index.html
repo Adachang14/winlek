@@ -6,125 +6,176 @@
   <title>วินเลข</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #eaffea;
+      font-family: 'Sarabun', sans-serif;
+      background: #e0f7fa;
       text-align: center;
       padding: 20px;
     }
-    input {
-      font-size: 18px;
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
       padding: 8px;
-      width: 200px;
+      margin: 10px 0;
+      font-size: 18px;
     }
     button {
-      font-size: 18px;
-      margin: 10px;
-      padding: 6px 12px;
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
     }
     .result-box {
-      background: #d3ffe0;
-      border-radius: 10px;
-      padding: 20px;
+      background-color: #d0f5d8;
       margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: left;
     }
-    .copy-status {
-      color: green;
+    .red { color: red; font-weight: bold; }
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #007bff;
+    }
+    .copied-msg {
+      display: inline-block;
       margin-left: 10px;
+      color: green;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
-
-  <h2>โปรแกรมวินเลข</h2>
-  <input id="inputDigits" type="text" placeholder="ใส่เลข (ไม่เกิน 7 ตัว)" maxlength="7" />
-  <button onclick="generate()">วินเลข</button>
-
-  <div class="result-box" id="results" style="display: none;">
-    <h3>เลขเด่น <span id="mainDigits"></span></h3>
-
+  <div class="container">
+    <h3>โปรแกรมวินเลขจากหน้าไปหลัง<br>ป้อนเลขที่ต้องการวิน อย่างน้อย 3 ตัว</h3>
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
     <div>
-      <h4>เลข 3 ตัว</h4>
-      <div id="result3"></div>
-      <button onclick="copyToClipboard('result3', this)">คัดลอก</button>
-      <span class="copy-status" id="copied3"></span>
+      <button onclick="win()">วินเลข</button>
+      <button onclick="clearAll()">เริ่มใหม่</button>
     </div>
-
-    <div>
-      <h4>เลข 2 ตัว</h4>
-      <div id="result2"></div>
-      <button onclick="copyToClipboard('result2', this)">คัดลอก</button>
-      <span class="copy-status" id="copied2"></span>
-    </div>
+    <div id="results"></div>
   </div>
 
   <script>
-    const hasDuplicates = (str) => new Set(str).size !== str.length;
-
-    document.getElementById("inputDigits").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        generate();
-      }
-    });
-
-    function generate() {
-      const input = document.getElementById("inputDigits").value.trim();
-      const digits = input.split("");
-
-      if (input === "") {
-        alert("กรุณากรอกเลขก่อน");
-        return;
-      }
-
-      if (hasDuplicates(input)) {
-        alert("❗ เลขซ้ำ กรุณากรอกใหม่");
-        return;
-      }
-
-      if (digits.length > 7) {
-        alert("❗ วินได้ไม่เกิน 7 ตัว กรุณากรอกใหม่");
-        return;
-      }
-
-      document.getElementById("mainDigits").textContent = input;
-      document.getElementById("results").style.display = "block";
-
-      // วินเลข 3 ตัว
-      const result3 = getCombinations(digits, 3);
-      document.getElementById("result3").textContent = result3.join(" ");
-
-      // วินเลข 2 ตัว
-      const result2 = getCombinations(digits, 2);
-      document.getElementById("result2").textContent = result2.join(" ");
-
-      // เคลียร์ข้อความคัดลอก
-      document.getElementById("copied2").textContent = "";
-      document.getElementById("copied3").textContent = "";
+    function hasDuplicates(str) {
+      return /(.).*\1/.test(str);
     }
 
-    function getCombinations(arr, size) {
+    function getUniqueCombinations(arr, size, allowDuplicates = false) {
       let result = [];
 
-      function combine(temp, start) {
-        if (temp.length === size) {
-          result.push(temp.join(""));
+      const combine = (current, start) => {
+        if (current.length === size) {
+          let str = current.join('');
+          if (allowDuplicates || !/(.).*?\1/.test(str)) {
+            result.push(str);
+          }
           return;
         }
         for (let i = start; i < arr.length; i++) {
-          combine([...temp, arr[i]], i + 1);
+          combine([...current, arr[i]], i + 1);
         }
-      }
+      };
 
       combine([], 0);
       return result;
     }
 
-    function copyToClipboard(elementId, btn) {
-      const text = document.getElementById(elementId).textContent;
+    function getAllPairsWithDupes(arr) {
+      let pairs = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          pairs.push(arr[i] + arr[j]);
+        }
+      }
+      return pairs;
+    }
+
+    function win() {
+      const input = document.getElementById("input").value.trim();
+      const digits = input.split("");
+
+      if (input.length < 3 || digits.length > 10) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
+        return;
+      }
+
+      if (hasDuplicates(input)) {
+        alert("❗️เลขซ้ำ กรุณากรอกใหม่");
+        return;
+      }
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+        </div>
+      `;
+
+      // วิน 3 ตัว ไม่รวมเบิ้ล
+      const win3NoDup = getUniqueCombinations(digits, 3, false);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
+
+      // วิน 2 ตัว รวมเบิ้ล
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+
+      // วิน 3 ตัว รวมเบิ้ล
+      const win3WithDup = [];
+      for (let i = 0; i < digits.length; i++) {
+        for (let j = 0; j < digits.length; j++) {
+          for (let k = 0; k < digits.length; k++) {
+            win3WithDup.push(digits[i] + digits[j] + digits[k]);
+          }
+        }
+      }
+      const unique3WithDup = [...new Set(win3WithDup)];
+      addResult("เลข 3 ตัว รวมเบิ้ล", unique3WithDup);
+    }
+
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
+
+      const uid = Math.random().toString(36).substr(2, 5); // unique ID
+
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join('-')}</div>
+        <div>(รวม ${list.length} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+      `;
+      document.getElementById("results").appendChild(box);
+    }
+
+    function copyText(text, uid) {
       navigator.clipboard.writeText(text).then(() => {
-        const copiedId = elementId === 'result3' ? 'copied3' : 'copied2';
-        document.getElementById(copiedId).textContent = "คัดลอกแล้ว!";
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
       });
+    }
+
+    function clearAll() {
+      document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        win();
+      }
     }
   </script>
 </body>
