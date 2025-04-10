@@ -119,7 +119,10 @@
     }
 
     function win() {
-      const input = document.getElementById("input").value.trim();
+     let input = document.getElementById("input").value.trim();
+
+  // 🧼 ลบทุกอย่างที่ไม่ใช่ตัวเลขออก
+      input = input.replace(/\D/g, '');
 
       const digits = input.split("");
 
