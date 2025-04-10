@@ -120,6 +120,8 @@
 
     function win() {
       const input = document.getElementById("input").value.trim();
+        input = input.replace(/\D/g, ''); // ✨ ลบทุกอย่างที่ไม่ใช่ตัวเลข
+
       const digits = input.split("");
 
       if (input.length < 3 || digits.length > 10) {
