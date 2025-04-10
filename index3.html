@@ -44,6 +44,14 @@
       background-color: #45a049;
     }
 
+    .secondary-btn {
+      background-color: #2196F3;
+    }
+
+    .secondary-btn:hover {
+      background-color: #1976D2;
+    }
+
     #result {
       background: #b6f3c0;
       border-radius: 15px;
@@ -56,6 +64,12 @@
       margin: 8px 0;
       font-weight: bold;
     }
+
+    #copyStatus {
+      color: green;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -63,10 +77,11 @@
   <div class="container">
     <h2>จับเลขใส่ 0 - 9</h2>
     <h3>ป้อนเลขชุด 2 ตัว</h3>
-    <textarea id="inputNumbers" placeholder="เช่น 12 25 38"></textarea>
+    <textarea id="inputNumbers" placeholder="เช่น 12 25 38" onkeypress="handleKeyPress(event)"></textarea>
     <br>
     <button onclick="generateNumbers()">ลากเลข</button>
     <button onclick="clearInput()">เริ่มใหม่</button>
+    <a href="index.html"><button class="secondary-btn">กลับหน้าวินเลข</button></a>
   </div>
 
   <div id="result"></div>
@@ -77,23 +92,46 @@
       const resultDiv = document.getElementById("result");
       const groups = input.split(" ");
       let resultHTML = "<h3>ผลลัพธ์ที่ได้</h3>";
+      let allNumbers = [];
 
       groups.forEach(group => {
         if (/^\d{2}$/.test(group)) {
-          const numbers = [];
           for (let i = 0; i <= 9; i++) {
-            numbers.push(group + i);
+            allNumbers.push(group + i);
           }
-          resultHTML += `<p>${numbers.join(" ")}</p>`;
         }
       });
 
-      resultDiv.innerHTML = resultHTML || "<p>กรุณาใส่เลขชุด 2 หลัก เช่น 12 25</p>";
+      if (allNumbers.length > 0) {
+        resultHTML += `<p id="numberOutput">${allNumbers.join(" ")}</p>`;
+        resultHTML += `<button onclick="copyToClipboard()">คัดลอก</button>`;
+        resultHTML += `<div id="copyStatus"></div>`;
+      } else {
+        resultHTML = "<p>กรุณาใส่เลขชุด 2 หลัก เช่น 12 25</p>";
+      }
+
+      resultDiv.innerHTML = resultHTML;
     }
 
     function clearInput() {
       document.getElementById("inputNumbers").value = "";
       document.getElementById("result").innerHTML = "";
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById("numberOutput").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById("copyStatus").innerText = "คัดลอกแล้ว!";
+      }).catch(() => {
+        document.getElementById("copyStatus").innerText = "เกิดข้อผิดพลาดในการคัดลอก";
+      });
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        generateNumbers();
+      }
     }
   </script>
 
