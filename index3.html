@@ -1,1 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ลากเลข</title>
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #c8f4f4;
+      text-align: center;
+      padding: 20px;
+    }
 
+    .container {
+      background: #b6eaf3;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    textarea {
+      width: 90%;
+      height: 80px;
+      font-size: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      background: #b6f3c0;
+      border-radius: 15px;
+      margin-top: 20px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    #result p {
+      margin: 8px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>จับเลขใส่ 0 - 9</h2>
+    <h3>ป้อนเลขชุด 2 ตัว</h3>
+    <textarea id="inputNumbers" placeholder="เช่น 12 25 38"></textarea>
+    <br>
+    <button onclick="generateNumbers()">ลากเลข</button>
+    <button onclick="clearInput()">เริ่มใหม่</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    function generateNumbers() {
+      const input = document.getElementById("inputNumbers").value.trim();
+      const resultDiv = document.getElementById("result");
+      const groups = input.split(" ");
+      let resultHTML = "<h3>ผลลัพธ์ที่ได้</h3>";
+
+      groups.forEach(group => {
+        if (/^\d{2}$/.test(group)) {
+          const numbers = [];
+          for (let i = 0; i <= 9; i++) {
+            numbers.push(group + i);
+          }
+          resultHTML += `<p>${numbers.join(" ")}</p>`;
+        }
+      });
+
+      resultDiv.innerHTML = resultHTML || "<p>กรุณาใส่เลขชุด 2 หลัก เช่น 12 25</p>";
+    }
+
+    function clearInput() {
+      document.getElementById("inputNumbers").value = "";
+      document.getElementById("result").innerHTML = "";
+    }
+  </script>
+
+</body>
+</html>
