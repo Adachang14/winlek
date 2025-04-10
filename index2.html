@@ -5,31 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ชุดเลขต่าง ๆ</title>
   <style>
-    .top-right {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.top-right button {
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.top-right button:hover {
-  background-color: #0056b3;
-}
-
     body {
       background-color: #d3f1f5; /* โทนเดียวกับ index1 แต่เข้มขึ้นเล็กน้อย */
       font-family: 'Tahoma', sans-serif;
       margin: 0;
       padding: 20px;
+      position: relative;
+    }
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .top-right button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .top-right button:hover {
+      background-color: #0056b3;
     }
     .box {
       background: #fff;
@@ -63,13 +61,13 @@
   </style>
 </head>
 <body>
-  <body>
+
+  <!-- ปุ่มย้อนกลับด้านขวาบน -->
   <div class="top-right">
-    <a href="index.html">
-      <button>กลับไปหน้าวินเลข</button>
-    </a>
+    <button onclick="window.location.href='index.html'">กลับไปหน้าวินเลข</button>
   </div>
-    
+
+  <!-- ชุดตัวเลขทั้งหมด -->
   <div class="box">
     <div class="title">พี่น้อง</div>
     <pre id="set1">01 12 23 34 45 56 67 78 89 90</pre>
@@ -186,13 +184,6 @@
       });
     }
   </script>
-<div style="text-align: right; margin: 20px;">
-  <a href="index.html">
-    <button style="padding: 8px 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
-      กลับไปหน้าวินเลข
-    </button>
-  </a>
-</div>
 
 </body>
 </html>
