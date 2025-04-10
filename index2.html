@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ชุดเลขต่าง ๆ</title>
+  <style>
+    body {
+      background-color: #d3f1f5; /* โทนเดียวกับ index1 แต่เข้มขึ้นเล็กน้อย */
+      font-family: 'Tahoma', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    pre {
+      background-color: #f8f8f8;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    button.copy-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.copy-btn:active {
+      background-color: #2c80b4;
+    }
+  </style>
+</head>
+<body>
 
+  <div class="box">
+    <div class="title">พี่น้อง</div>
+    <pre id="set1">01 12 23 34 45 56 67 78 89 90</pre>
+    <button class="copy-btn" onclick="copyText('set1', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เลขเรียง 3 ตัว</div>
+    <pre id="set2">012 123 234 345 456 567 678 789 890 901</pre>
+    <button class="copy-btn" onclick="copyText('set2', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เบิ้ลหน้า</div>
+    <pre id="set3">001 112 221 331 441 551 661 771 881 991
+002 113 223 332 442 552 662 772 882 992
+003 114 224 334 443 553 663 773 883 993
+004 115 225 335 445 554 664 774 884 994
+005 116 226 336 446 556 665 775 885 995
+006 117 227 337 447 557 667 776 886 996
+007 118 228 338 448 558 668 778 887 997
+008 119 229 339 449 559 669 779 889 998
+009 110 220 330 440 550 660 770 880 990</pre>
+    <button class="copy-btn" onclick="copyText('set3', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เบิ้ลหลัง</div>
+    <pre id="set4">100 211 122 133 144 155 166 177 188 199
+200 311 322 233 244 255 266 277 288 299
+300 411 422 433 344 355 366 377 388 399
+400 511 522 533 544 455 466 477 488 499
+500 611 622 633 644 655 566 577 588 599
+600 711 722 733 744 755 766 677 688 699
+700 811 822 833 844 855 866 877 788 799
+800 911 922 933 944 955 966 977 988 899
+900 011 022 033 044 055 066 077 088 099</pre>
+    <button class="copy-btn" onclick="copyText('set4', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">หาม</div>
+    <pre id="set5">010 121 212 313 414 515 616 717 818 919
+020 131 232 323 424 525 626 727 828 929
+030 141 242 343 434 535 636 737 838 939
+040 151 252 353 454 545 646 747 848 949
+050 161 262 363 464 565 656 757 858 959
+060 171 272 373 474 575 676 767 868 969
+070 181 282 383 484 585 686 787 878 979
+080 191 292 393 494 595 696 797 898 989
+090 101 202 303 404 505 606 707 808 909</pre>
+    <button class="copy-btn" onclick="copyText('set5', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">สิบแต้ม</div>
+    <pre id="set6">19 28 37 46 55</pre>
+    <button class="copy-btn" onclick="copyText('set6', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เรียงพิเศษ</div>
+    <pre id="set7">016 086 245 459 579 015 235</pre>
+    <button class="copy-btn" onclick="copyText('set7', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">ตองพิเศษ</div>
+    <pre id="set8">117 771 338 883 669 996 449 994</pre>
+    <button class="copy-btn" onclick="copyText('set8', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">ตองร้อย</div>
+    <pre id="set9">100 200 300 400 500 600 700 800 900</pre>
+    <button class="copy-btn" onclick="copyText('set9', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">ตองเทพ</div>
+    <pre id="set10">013 014 017 033 034 037
+044 047 077 113 114 117
+133 134 137 144 147 177
+334 337 344 347 377 447 477</pre>
+    <button class="copy-btn" onclick="copyText('set10', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">พี่น้องปลอม</div>
+    <pre id="set11">06 86 59 79</pre>
+    <button class="copy-btn" onclick="copyText('set11', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เลขชู้</div>
+    <pre id="set12">03 14 25 36 47 58 69 70 81 92</pre>
+    <button class="copy-btn" onclick="copyText('set12', this)">คัดลอก</button>
+  </div>
+
+  <div class="box">
+    <div class="title">เลขผัวเมีย</div>
+    <pre id="set13">02 13 24 35 46 57 68 79 80 91</pre>
+    <button class="copy-btn" onclick="copyText('set13', this)">คัดลอก</button>
+  </div>
+
+  <script>
+    function copyText(id, btn) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerText = 'คัดลอกแล้ว';
+        setTimeout(() => {
+          btn.innerText = 'คัดลอก';
+        }, 1500);
+      });
+    }
+  </script>
+<div style="text-align: right; margin: 20px;">
+  <a href="index.html">
+    <button style="padding: 8px 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      กลับไปหน้าวินเลข
+    </button>
+  </a>
+</div>
+
+</body>
+</html>
