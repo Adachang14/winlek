@@ -191,9 +191,9 @@
 
       box.innerHTML = `
         <div><strong>${title}</strong></div>
-        <div class="red">${list.join('-')}</div>
+        <div class="red">${list.join(' ')}</div>
         <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\`${list.join('-')}\`, '${uid}')">คัดลอก</button>
+        <button class="copy-btn" onclick="copyText(\`${list.join(' ')}\`, '${uid}')">คัดลอก</button>
         <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
       `;
       document.getElementById("results").appendChild(box);
