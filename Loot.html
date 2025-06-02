@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รูด 19 ประตู</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; }
+    pre { background: #f9f9f9; padding: 10px; white-space: pre-wrap; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>รูด 19 ประตู 🔢</h2>
+  <input id="input" placeholder="พิมพ์เลข เช่น 4/7 6/9..." size="40">
+  <button onclick="generate()">รูดเลย!</button>
+  <pre id="output"></pre>
+
+  <script>
+    function generate() {
+      const val = document.getElementById('input').value;
+      const regex = /(\d)/g;
+      const numbers = val.match(regex) || [];
+      const result = numbers.map(n => {
+        let r = [];
+        for (let i = 0; i <= 9; i++) r.push(`${n}${i}`);
+        for (let i = 0; i <= 9; i++) r.push(`${i}${n}`);
+        return `[รูด ${n}] ` + r.join(' ');
+      });
+      document.getElementById('output').textContent = result.join('\n');
+    }
+  </script>
+</body>
+</html>
