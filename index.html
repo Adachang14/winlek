@@ -13,13 +13,15 @@
     gtag('js', new Date());
     gtag('config', 'G-5QWYMLXEDM');
   </script>
-</head>
   <style>
     .top-right {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -27,6 +29,7 @@
       text-align: center;
       padding: 20px;
     }
+
     .container {
       background: white;
       border-radius: 15px;
@@ -35,12 +38,14 @@
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     input[type="text"] {
       width: 80%;
       padding: 8px;
       margin: 10px 0;
       font-size: 18px;
     }
+
     button {
       margin: 5px;
       padding: 10px 24px;
@@ -51,18 +56,32 @@
       background-color: #2196F3;
       color: white;
     }
+
+    .mini-button {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
     .result-box {
       background-color: #d0f5d8;
       margin-top: 20px;
       padding: 14px;
       border-radius: 12px;
-      text-align: center; /*  จุดเปลี่ยนช่องคัดลอกให้อยู่ตรงไหน*/
+      text-align: center;
     }
+
     .red { color: red; font-weight: bold; }
+
     .copy-btn {
       margin-top: 10px;
       background-color: #007bff;
     }
+
     .copied-msg {
       display: inline-block;
       margin-left: 10px;
@@ -74,19 +93,21 @@
 <body>
   <div class="container">
     <!-- ปุ่มลอยขวาบน -->
-  <div class="top-right">
-    <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
-  </div>
-    <h3>วินเลขครบวงจร By อิอ้วน V.คนคีย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว  </h3>
+    <div class="top-right">
+      <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
+      <button class="mini-button" onclick="window.location.href='Loot.html'">รูดยาว</button>
+    </div>
+
+    <h3>วินเลขครบวงจร By อิอ้วน V.คนคีย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว</h3>
     <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
     <div>
       <button onclick="win()">วินเลข</button>
       <button id="reset-btn" onclick="clearAll()">เริ่มใหม่</button>
     </div>
     <br>
-<a href="index3.html">
-  <button type="button" class="blue-button">ลากเลข</button>
-</a>
+    <a href="index3.html">
+      <button type="button" class="blue-button">ลากเลข</button>
+    </a>
     <div id="results"></div>
   </div>
 
@@ -143,11 +164,8 @@
     }
 
     function win() {
-     let input = document.getElementById("input").value.trim();
-
-  // 🧼 ลบทุกอย่างที่ไม่ใช่ตัวเลขออก
+      let input = document.getElementById("input").value.trim();
       input = input.replace(/\D/g, '');
-
       const digits = input.split("");
 
       if (input.length < 3 || digits.length > 10) {
@@ -163,6 +181,7 @@
         alert("วินได้ไม่เกิน 7ตัว เเจ้งลค.ว่า= วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
         return;
       }
+
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
@@ -217,9 +236,10 @@
         win();
       }
     }
-      document.getElementById("input").addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, '');
-      });
+
+    document.getElementById("input").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
   </script>
 </body>
 </html>
