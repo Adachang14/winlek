@@ -58,7 +58,7 @@
 <body>
   <div class="container">
     <h2>ระบบรูดยาว</h2>
-    <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/2/2 หรือ ร1 ร2" onkeypress="checkEnter(event)" />
+    <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/2/2 หรือ ร1 ร2 หรือ 1234" onkeypress="checkEnter(event)" />
     <div>
       <button onclick="generateRood()">รูดเลย</button>
       <button class="btn-clear" onclick="clearAll()">เริ่มใหม่</button>
@@ -71,8 +71,18 @@
 
   <script>
     function parseInput(input) {
-      input = input.toLowerCase().replace(/ร/g, '').replace(/[^\d/ ]+/g, '').replace(/\/+/g, '/');
-      return input.split(/[ /]+/).filter(n => n !== '');
+      input = input.toLowerCase()
+        .replace(/ร/g, '')
+        .replace(/[^\d\/ ,\-]+/g, '')
+        .replace(/[\/ ,\-]+/g, '/')
+        .trim();
+
+      // ถ้าไม่มี / แต่เป็นเลขติดกัน เช่น 1234 → แยกเป็น ['1','2','3','4']
+      if (!input.includes('/') && input.length > 1) {
+        return input.split('');
+      }
+
+      return input.split('/').filter(n => n !== '');
     }
 
     function buildRood(num) {
@@ -82,10 +92,7 @@
         back.push(i + num);
       }
 
-      // ลบเลขซ้ำ (เช่น 11) จาก back ถ้ามีอยู่ใน front แล้ว
       let full = front.concat(back.filter(n => !front.includes(n)));
-
-      // เรียงแบบที่ต้องการ: front ก่อน (num0-num9) แล้ว back (0num, 1num, ...), ไม่ซ้ำ
       return full;
     }
 
