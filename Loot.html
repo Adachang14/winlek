@@ -1,32 +1,121 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>รูด 19 ประตู</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>หน้า Loot</title>
+  <link rel="icon" type="image/png" href="icostar.png">
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, button { padding: 10px; font-size: 16px; }
-    pre { background: #f9f9f9; padding: 10px; white-space: pre-wrap; margin-top: 20px; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #f0f8ff;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+    }
+    .result-box {
+      background-color: #e0ffe0;
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+    }
+    .copy-btn {
+      background-color: #007bff;
+      margin-top: 10px;
+    }
+    .copied-msg {
+      display: inline-block;
+      margin-left: 10px;
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h2>รูด 19 ประตู 🔢</h2>
-  <input id="input" placeholder="พิมพ์เลข เช่น 4/7 6/9..." size="40">
-  <button onclick="generate()">รูดเลย!</button>
-  <pre id="output"></pre>
+  <div class="container">
+    <h3>วินเลขแบบรูด 19 ประตู (หน้า Loot)</h3>
+    <input type="text" id="lootInput" placeholder="ป้อนเลข เช่น 12 45" onkeypress="checkEnter(event)" />
+    <div>
+      <button onclick="generateLoot()">วินเลข</button>
+      <button onclick="resetAll()">เริ่มใหม่</button>
+      <button onclick="goHome()">กลับหน้าหลัก</button>
+    </div>
+    <div id="lootResult"></div>
+  </div>
 
   <script>
-    function generate() {
-      const val = document.getElementById('input').value;
-      const regex = /(\d)/g;
-      const numbers = val.match(regex) || [];
-      const result = numbers.map(n => {
-        let r = [];
-        for (let i = 0; i <= 9; i++) r.push(`${n}${i}`);
-        for (let i = 0; i <= 9; i++) r.push(`${i}${n}`);
-        return `[รูด ${n}] ` + r.join(' ');
+    function generateLoot() {
+      const input = document.getElementById("lootInput").value.trim();
+      if (!input) {
+        alert("กรุณากรอกเลขก่อน");
+        return;
+      }
+      const numbers = input.split(/\s+/);
+      let resultHTML = "";
+      numbers.forEach((num) => {
+        const lootSet = [];
+        for (let i = 0; i <= 9; i++) {
+          lootSet.push(num + i);
+          lootSet.push(i + num);
+        }
+        const uniqueSet = [...new Set(lootSet)].sort();
+        const uid = Math.random().toString(36).substr(2, 5);
+        resultHTML += `
+          <div class="result-box">
+            <div><strong>รูด ${num}</strong></div>
+            <div class="red">${uniqueSet.join(" ")}</div>
+            <button class="copy-btn" onclick="copyLootText(\`${uniqueSet.join(" ")}\`, '${uid}')">คัดลอก</button>
+            <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+          </div>
+        `;
       });
-      document.getElementById('output').textContent = result.join('\n');
+      document.getElementById("lootResult").innerHTML = resultHTML;
+    }
+
+    function copyLootText(text, uid) {
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
+    }
+
+    function resetAll() {
+      document.getElementById("lootInput").value = "";
+      document.getElementById("lootResult").innerHTML = "";
+    }
+
+    function goHome() {
+      window.location.href = "index.html";
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        generateLoot();
+      }
     }
   </script>
 </body>
