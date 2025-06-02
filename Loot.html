@@ -1,69 +1,136 @@
-<script>
-  function extractDigits(text) {
-    // ดึงเลขเดี่ยวทั้งหมดตามลำดับ โดยไม่ลบซ้ำ
-    return text.match(/\d/g) || [];
-  }
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>วินเลข - รูดเลขซ้ำตามจำนวน</title>
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #e0f7fa;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+      user-select: none;
+    }
+    .result-box {
+      background-color: #d0f5d8;
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      white-space: pre-wrap;
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #007bff;
+    }
+    .copied-msg {
+      display: inline-block;
+      margin-left: 10px;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3>รูดเลขซ้ำตามจำนวนที่พิมพ์</h3>
+    <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/1/1 หรือ 2 2 3" onkeypress="checkEnter(event)" />
+    <div>
+      <button onclick="win()">วินเลข</button>
+      <button onclick="clearAll()">เริ่มใหม่</button>
+      <button class="copy-btn" onclick="copyAll()" style="background:#28a745;">คัดลอกทั้งหมด</button>
+    </div>
+    <div id="results"></div>
+  </div>
 
-  function generate() {
-    const input = document.getElementById("input").value;
-    const digits = extractDigits(input);
-    const resultDiv = document.getElementById("results");
-    resultDiv.innerHTML = "";
-
-    if (digits.length === 0) {
-      resultDiv.innerHTML = "<p class='red'>กรุณาใส่เลขก่อนนะ</p>";
-      return;
+  <script>
+    // ฟังก์ชันอ่านเลขจาก input แบบต่างๆ ให้ครบทุกตัวและแยกตาม / หรือ space
+    function parseInput(input) {
+      // ลบช่องว่างรอบข้าง, แทน / ด้วย space แล้ว split
+      input = input.trim().replace(/\/+/g, ' ');
+      let parts = input.split(/\s+/);
+      // กรองเอาแค่เลข 0-9
+      let nums = parts.map(p => p.replace(/[^0-9]/g, '')).filter(p => p !== '');
+      return nums;
     }
 
-    const allResults = [];
+    function win() {
+      const input = document.getElementById("input").value;
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = '';
 
-    digits.forEach((digit, index) => {
-      const nums = [];
-      for (let i = 0; i <= 9; i++) {
-        nums.push(`${i}${digit}`);
-        nums.push(`${digit}${i}`);
+      const nums = parseInput(input);
+
+      if (nums.length === 0) {
+        alert('กรุณากรอกเลขที่ถูกต้อง อย่างน้อย 1 ตัว');
+        return;
       }
-      const uniqueNums = [...new Set(nums)];
-      const resultText = `[${index + 1}] รูด ${digit}: ${uniqueNums.join(' ')}`;
-      allResults.push(resultText);
 
-      const box = document.createElement("div");
-      box.className = "result-box";
-      box.innerHTML = `<div class="red">${resultText}</div>`;
-      resultDiv.appendChild(box);
-    });
+      // ฟังก์ชันสร้างเลขรูดตามเลขเดี่ยวที่รับมา
+      function buildRood(num) {
+        let arr = [];
+        for(let i = 0; i <= 9; i++) {
+          arr.push(num + i);
+        }
+        for(let i = 0; i <= 9; i++) {
+          arr.push(i + num);
+        }
+        return arr;
+      }
 
-    // ปุ่มคัดลอกทั้งหมด
-    const copyBtn = document.createElement("button");
-    copyBtn.className = "copy-btn";
-    copyBtn.innerText = "คัดลอกทั้งหมด";
-    copyBtn.onclick = () => copyText(allResults.join('\n'));
-    resultDiv.appendChild(copyBtn);
+      // แสดงผลตามจำนวนซ้ำเลย (ไม่ตัดซ้ำ)
+      let outputText = '';
+      nums.forEach((num, idx) => {
+        const roodArr = buildRood(num);
+        outputText += `[${idx+1}] รูด ${num}: ${roodArr.join(' ')}\n`;
+      });
 
-    const copiedMsg = document.createElement("span");
-    copiedMsg.id = "copied-msg";
-    copiedMsg.className = "copied-msg";
-    copiedMsg.style.display = "none";
-    copiedMsg.innerText = "คัดลอกแล้ว!";
-    resultDiv.appendChild(copiedMsg);
-  }
-
-  function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      const msg = document.getElementById("copied-msg");
-      msg.style.display = "inline-block";
-      setTimeout(() => msg.style.display = "none", 2000);
-    });
-  }
-
-  function clearAll() {
-    document.getElementById("input").value = "";
-    document.getElementById("results").innerHTML = "";
-  }
-
-  function checkEnter(e) {
-    if (e.key === "Enter") {
-      generate();
+      resultsDiv.textContent = outputText;
     }
-  }
-</script>
+
+    function copyAll() {
+      const text = document.getElementById("results").textContent;
+      if (!text) return alert('ไม่มีข้อความให้คัดลอก');
+      navigator.clipboard.writeText(text).then(() => {
+        alert('คัดลอกเรียบร้อย!');
+      });
+    }
+
+    function clearAll() {
+      document.getElementById("input").value = '';
+      document.getElementById("results").innerHTML = '';
+    }
+
+    function checkEnter(e) {
+      if (e.key === 'Enter') {
+        win();
+      }
+    }
+  </script>
+</body>
+</html>
