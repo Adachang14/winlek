@@ -78,17 +78,12 @@
   <script>
     function parseInput(input) {
       input = input.toLowerCase()
-        .replace(/ร/g, '')
-        .replace(/[^\d\/ ,\-]+/g, '')
-        .replace(/[\/ ,\-]+/g, '/')
-        .trim();
+        .replace(/ร/g, '') // ลบตัว ร
+        .replace(/[^\d]/g, '') // เหลือแค่ตัวเลขติดกัน เช่น 12345
+        .split('') // แยกทุกตัวออก
+        .filter(n => n !== '');
 
-      // ถ้าไม่มี / แต่เป็นเลขติดกัน เช่น 1234 → แยกเป็น ['1','2','3','4']
-      if (!input.includes('/') && input.length > 1) {
-        return input.split('');
-      }
-
-      return input.split('/').filter(n => n !== '');
+      return input;
     }
 
     function buildRood(num) {
@@ -97,8 +92,6 @@
         front.push(num + i);
         back.push(i + num);
       }
-
-      // ลบเลขซ้ำ (เช่น 11) ออกจาก back ก่อน merge
       let full = front.concat(back.filter(n => !front.includes(n)));
       return full;
     }
