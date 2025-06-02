@@ -53,6 +53,11 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
+    #copy-status {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
   </style>
 </head>
 <body>
@@ -65,6 +70,7 @@
       <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
       <button class="btn-back" onclick="goBack()">กลับหน้าหลัก</button>
     </div>
+    <div id="copy-status"></div>
     <br>
     <pre id="results"></pre>
   </div>
@@ -77,6 +83,7 @@
         .replace(/[\/ ,\-]+/g, '/')
         .trim();
 
+      // ถ้าไม่มี / แต่เป็นเลขติดกัน เช่น 1234 → แยกเป็น ['1','2','3','4']
       if (!input.includes('/') && input.length > 1) {
         return input.split('');
       }
@@ -90,14 +97,22 @@
         front.push(num + i);
         back.push(i + num);
       }
+
+      // ลบเลขซ้ำ (เช่น 11) ออกจาก back ก่อน merge
       let full = front.concat(back.filter(n => !front.includes(n)));
       return full;
+    }
+
+    function toThaiNumber(n) {
+      return n.toString().replace(/\d/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]);
     }
 
     function generateRood() {
       const input = document.getElementById("input").value;
       const resultsDiv = document.getElementById("results");
+      const copyStatus = document.getElementById("copy-status");
       resultsDiv.innerHTML = '';
+      copyStatus.textContent = '';
 
       const nums = parseInput(input);
 
@@ -109,7 +124,8 @@
       let resultText = '';
       nums.forEach((num, index) => {
         const roods = buildRood(num);
-        resultText += `[${index + 1}] รูด ${num}: ${roods.join(' ')}\n`;
+        const thaiIndex = toThaiNumber(index + 1);
+        resultText += `[${thaiIndex}] รูด ${num}: ${roods.join(' ')}\n`;
       });
 
       resultsDiv.textContent = resultText.trim();
@@ -117,20 +133,20 @@
 
     function copyAll() {
       const text = document.getElementById("results").textContent;
-      if (!text) return;
+      const copyStatus = document.getElementById("copy-status");
+      if (!text) {
+        copyStatus.textContent = '';
+        return;
+      }
       navigator.clipboard.writeText(text).then(() => {
-        const copyBtn = document.querySelector(".btn-copy");
-        const oldText = copyBtn.textContent;
-        copyBtn.textContent = "คัดลอกแล้ว!";
-        setTimeout(() => {
-          copyBtn.textContent = oldText;
-        }, 2000);
+        copyStatus.textContent = 'คัดลอกแล้ว';
       });
     }
 
     function clearAll() {
       document.getElementById("input").value = '';
       document.getElementById("results").textContent = '';
+      document.getElementById("copy-status").textContent = '';
     }
 
     function checkEnter(event) {
