@@ -48,7 +48,24 @@
       margin: 10px 0;
       font-size: 18px;
     }
-    button {
+    /* แก้ปุ่มวินเลข กับ เริ่มใหม่ ให้อยู่ติดกันสวยงาม */
+    .btn-group {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .btn-group button {
+      display: inline-block;
+      width: 48%;
+      margin: 1%;
+      padding: 10px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+    }
+    a .blue-button {
       padding: 10px 24px;
       font-size: 16px;
       border: none;
@@ -57,6 +74,9 @@
       background-color: #2196F3;
       color: white;
       width: 100%;
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
     }
     .result-box {
       background-color: #d0f5d8;
@@ -69,6 +89,11 @@
     .copy-btn {
       margin-top: 10px;
       background-color: #007bff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
     }
     .copied-msg {
       display: inline-block;
@@ -88,14 +113,16 @@
 
     <h3>วินเลขครบวงจร By อิอ้วน V.คนคีย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว  </h3>
     <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
-    <div>
+
+    <div class="btn-group">
       <button onclick="win()">วินเลข</button>
       <button id="reset-btn" onclick="clearAll()">เริ่มใหม่</button>
     </div>
-    <br>
+
     <a href="index3.html">
       <button type="button" class="blue-button">ลากเลข</button>
     </a>
+    
     <div id="results"></div>
   </div>
 
@@ -211,24 +238,4 @@
     function copyText(text, uid) {
       navigator.clipboard.writeText(text).then(() => {
         const msg = document.getElementById("copied-" + uid);
-        msg.style.display = "inline-block";
-        setTimeout(() => msg.style.display = "none", 2000);
-      });
-    }
-
-    function clearAll() {
-      document.getElementById("input").value = "";
-      document.getElementById("results").innerHTML = "";
-    }
-
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        win();
-      }
-    }
-    document.getElementById("input").addEventListener("input", function () {
-      this.value = this.value.replace(/\D/g, '');
-    });
-  </script>
-</body>
-</html>
+        msg.style
