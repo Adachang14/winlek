@@ -71,7 +71,6 @@
 
   <script>
     function parseInput(input) {
-      // แปลงรูปแบบให้เหมาะสม เช่น ร1, ร 2, / หลายตัว, ช่องว่าง
       input = input.toLowerCase().replace(/ร/g, '').replace(/[^\d/ ]+/g, '').replace(/\/+/g, '/');
       return input.split(/[ /]+/).filter(n => n !== '');
     }
@@ -82,10 +81,12 @@
         front.push(num + i);
         back.push(i + num);
       }
-      // ลบเลขซ้ำ และเรียง
-      front = [...new Set(front)].sort();
-      back = [...new Set(back)].sort();
-      return front.concat(back);
+
+      // ลบเลขซ้ำ (เช่น 11) จาก back ถ้ามีอยู่ใน front แล้ว
+      let full = front.concat(back.filter(n => !front.includes(n)));
+
+      // เรียงแบบที่ต้องการ: front ก่อน (num0-num9) แล้ว back (0num, 1num, ...), ไม่ซ้ำ
+      return full;
     }
 
     function generateRood() {
