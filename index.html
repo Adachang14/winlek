@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
@@ -164,11 +164,11 @@
         return;
       }
       const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = 
+      resultsDiv.innerHTML = `
         <div class="result-box">
           <strong>เลขเด่น ${input}</strong>
         </div>
-      ;
+      `;
 
       const win3NoDup = getUniqueCombinations(digits, 3, false);
       addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
@@ -189,13 +189,13 @@
 
       const uid = Math.random().toString(36).substr(2, 5);
 
-      box.innerHTML = 
+      box.innerHTML = `
         <div><strong>${title}</strong></div>
         <div class="red">${list.join(' ')}</div>
         <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\${list.join(' ')}\, '${uid}')">คัดลอก</button>
+        <button class="copy-btn" onclick="copyText(\`${list.join(' ')}\`, '${uid}')">คัดลอก</button>
         <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-      ;
+      `;
       document.getElementById("results").appendChild(box);
     }
 
