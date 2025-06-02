@@ -3,141 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>รูดยาว</title>
-  <link rel="icon" type="image/png" href="icostar.png" />
+  <title>รูดเลข</title>
   <style>
     body {
       font-family: 'Sarabun', sans-serif;
-      background: #f1f8e9;
-      text-align: center;
+      background: #fffbe7;
       padding: 20px;
+      text-align: center;
     }
     .container {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
       max-width: 600px;
       margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input[type="text"] {
-      width: 90%;
       padding: 10px;
-      margin: 10px 0;
+      width: 80%;
       font-size: 18px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
     button {
-      margin: 5px;
       padding: 10px 20px;
+      margin: 10px 5px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
-      background-color: #4caf50;
+      background-color: #2196F3;
       color: white;
+      cursor: pointer;
     }
-    .btn-copy {
-      background-color: #2196f3;
-    }
-    .btn-clear {
-      background-color: #ff5722;
-    }
-    .btn-back {
-      background-color: #9e9e9e;
-    }
-    pre {
-      text-align: left;
-      background: #e8f5e9;
-      padding: 15px;
+    .result-box {
+      background: #f0f8ff;
       border-radius: 10px;
-      white-space: pre-wrap;
-      word-break: break-word;
+      margin: 15px 0;
+      padding: 10px;
+      text-align: left;
+      font-size: 18px;
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #4caf50;
+    }
+    .copied-msg {
+      margin-left: 10px;
+      color: green;
+      font-weight: bold;
+    }
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
     }
   </style>
 </head>
 <body>
+  <div class="top-right">
+    <button onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
+  </div>
   <div class="container">
-    <h2>ระบบรูดยาว</h2>
-    <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/2/2 หรือ ร1 ร2 หรือ 1234" onkeypress="checkEnter(event)" />
+    <h2>ระบบรูดเลข</h2>
+    <input type="text" id="input" placeholder="ใส่เลข เช่น 1/2/3, 123, ร1 ร2, 1-2-3" onkeypress="if(event.key==='Enter') processInput()" />
     <div>
-      <button onclick="generateRood()">รูดเลย</button>
-      <button class="btn-clear" onclick="clearAll()">เริ่มใหม่</button>
-      <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
-      <button class="btn-back" onclick="goBack()">กลับหน้าหลัก</button>
+      <button onclick="processInput()">รูดเลข</button>
+      <button onclick="resetAll()">เริ่มใหม่</button>
     </div>
-    <br>
-    <pre id="results"></pre>
+    <div id="results"></div>
+    <div>
+      <button class="copy-btn" onclick="copyAll()">คัดลอกทั้งหมด</button>
+      <span id="copied-msg" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+    </div>
   </div>
 
   <script>
+    const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+
+    function toThaiNumber(num) {
+      return num.toString().split('').map(d => thaiDigits[+d]).join('');
+    }
+
     function parseInput(input) {
-      input = input.toLowerCase()
-        .replace(/ร/g, '')
-        .replace(/[^\d\/ ,\-]+/g, '')
-        .replace(/[\/ ,\-]+/g, '/')
-        .trim();
-
-      // ถ้าไม่มี / แต่เป็นเลขติดกัน เช่น 1234 → แยกเป็น ['1','2','3','4']
-      if (!input.includes('/') && input.length > 1) {
-        return input.split('');
-      }
-
-      return input.split('/').filter(n => n !== '');
+      // แปลง input ที่พิมพ์เป็นตัวเลขแยก
+      const cleaned = input.replace(/ร/g, '')
+                           .replace(/[^\d]/g, ' ')
+                           .split(' ')
+                           .filter(Boolean);
+      return cleaned;
     }
 
-    function buildRood(num) {
-      let front = [], back = [];
+    function generateRoodPairs(digit) {
+      let result = [];
       for (let i = 0; i <= 9; i++) {
-        front.push(num + i);
-        back.push(i + num);
+        result.push(`${digit}${i}`, `${i}${digit}`);
       }
-
-      let full = front.concat(back.filter(n => !front.includes(n)));
-      return full;
+      return [...new Set(result)]; // ไม่เอาซ้ำ
     }
 
-    function generateRood() {
-      const input = document.getElementById("input").value;
+    function processInput() {
+      const input = document.getElementById("input").value.trim();
+      if (!input) return;
+
+      const rawDigits = parseInput(input);
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = '';
 
-      const nums = parseInput(input);
+      let allResults = [];
 
-      if (nums.length === 0) {
-        alert('กรุณากรอกเลขอย่างน้อย 1 ตัว');
-        return;
-      }
+      rawDigits.forEach((digit, idx) => {
+        const pairs = generateRoodPairs(digit);
+        allResults.push(`[${toThaiNumber(idx + 1)}] รูด ${digit}: ${pairs.join(' ')}`);
 
-      let resultText = '';
-      nums.forEach((num, index) => {
-        const roods = buildRood(num);
-        resultText += `[${index + 1}] รูด ${num}: ${roods.join(' ')}\n`;
+        const box = document.createElement("div");
+        box.className = "result-box";
+        box.textContent = `[${toThaiNumber(idx + 1)}] รูด ${digit}: ${pairs.join(' ')}`;
+        resultsDiv.appendChild(box);
       });
 
-      resultsDiv.textContent = resultText.trim();
+      document.getElementById("results").dataset.alltext = allResults.join('\n');
     }
 
     function copyAll() {
-      const text = document.getElementById("results").textContent;
-      if (!text) return alert('ไม่มีข้อความให้คัดลอก');
+      const text = document.getElementById("results").dataset.alltext || '';
+      if (!text) return;
+
       navigator.clipboard.writeText(text).then(() => {
-        alert('คัดลอกแล้วเรียบร้อย!');
+        const msg = document.getElementById("copied-msg");
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
       });
     }
 
-    function clearAll() {
+    function resetAll() {
       document.getElementById("input").value = '';
-      document.getElementById("results").textContent = '';
-    }
-
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        generateRood();
-      }
-    }
-
-    function goBack() {
-      window.location.href = "index.html";
+      document.getElementById("results").innerHTML = '';
+      document.getElementById("copied-msg").style.display = 'none';
     }
   </script>
 </body>
