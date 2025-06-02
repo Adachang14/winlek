@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loot</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้า Loot</title>
   <style>
     body {
       font-family: 'Sarabun', sans-serif;
       background: #f0f8ff;
-      text-align: center;
       padding: 20px;
+      text-align: center;
     }
     .container {
       background: white;
@@ -22,11 +22,12 @@
     input[type="text"] {
       width: 80%;
       padding: 10px;
+      margin: 10px 0;
       font-size: 18px;
     }
     button {
       margin: 5px;
-      padding: 10px 20px;
+      padding: 10px 24px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
@@ -35,78 +36,99 @@
       color: white;
     }
     .result-box {
+      background-color: #d0f5d8;
       margin-top: 20px;
       padding: 14px;
-      background-color: #e6ffe6;
       border-radius: 12px;
       text-align: left;
+      white-space: pre-line;
+    }
+    .copy-btn {
+      background-color: #007bff;
     }
     .copied-msg {
+      display: inline-block;
+      margin-left: 10px;
       color: green;
       font-weight: bold;
-      display: none;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h3>หน้า Loot วินเลข 19 ประตู</h3>
-    <input type="text" id="lootInput" placeholder="ใส่เลข เช่น 1 4 7 6 9" onkeypress="checkEnter(event)" />
+    <h2>หน้า Loot</h2>
+    <input type="text" id="input" placeholder="กรอกเช่น 6/5 2/0 7/9..." onkeypress="checkEnter(event)">
     <div>
-      <button onclick="generateLoot()">วินเลข</button>
+      <button onclick="generateLoot()">แสดงผล</button>
       <button onclick="clearAll()">เริ่มใหม่</button>
       <button onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
     </div>
-
-    <div id="lootResults" class="result-box"></div>
-    <button onclick="copyAll()">คัดลอกทั้งหมด</button>
-    <div id="copyMsg" class="copied-msg">คัดลอกแล้ว!</div>
+    <div id="results"></div>
   </div>
 
   <script>
-    function generateLoot() {
-      const input = document.getElementById("lootInput").value.trim();
-      const digits = input.split(/\s+/).filter(d => /^\d$/.test(d));
-
-      if (digits.length === 0) {
-        alert("กรุณาใส่เลขอย่างน้อย 1 ตัว");
-        return;
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        generateLoot();
       }
+    }
 
+    function generateLoot() {
+      let input = document.getElementById("input").value.trim();
+      if (!input) return;
+
+      const pairs = input.split(/\s+/);
       let output = "";
+      let allNumbers = [];
 
-      digits.forEach((digit, index) => {
-        let set = new Set();
+      pairs.forEach((pair, index) => {
+        const [a, b] = pair.split("/");
+        if (!a || !b) return;
+
+        const nums = [];
         for (let i = 0; i <= 9; i++) {
-          set.add(`${i}${digit}`);
-          set.add(`${digit}${i}`);
+          nums.push(a + i);
         }
-        output += `[${index + 1}] รูด ${digit}: ${Array.from(set).sort().join(' ')}  \n\n`;
+        for (let i = 0; i <= 9; i++) {
+          if (i != a) nums.push(i + a);
+        }
+        for (let i = 0; i <= 9; i++) {
+          nums.push(b + i);
+        }
+        for (let i = 0; i <= 9; i++) {
+          if (i != b) nums.push(i + b);
+        }
+
+        const uniqueNums = Array.from(new Set(nums));
+        allNumbers.push(...uniqueNums);
+
+        output += `[${index + 1}] รูด ${a}: ${uniqueNums.filter(n => n.startsWith(a) || n.endsWith(a)).join(" ")}\n`;
       });
 
-      document.getElementById("lootResults").innerText = output.trim();
+      document.getElementById("results").innerHTML = `
+        <div class="result-box">
+          ${output}
+          <br>
+          <button class="copy-btn" onclick="copyAll()">คัดลอก</button>
+          <span id="copied-msg" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+        </div>
+      `;
+
+      window.allNumbersText = output;
     }
 
     function copyAll() {
-      const text = document.getElementById("lootResults").innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById("copyMsg").style.display = "block";
+      navigator.clipboard.writeText(window.allNumbersText).then(() => {
+        document.getElementById("copied-msg").style.display = "inline-block";
         setTimeout(() => {
-          document.getElementById("copyMsg").style.display = "none";
+          document.getElementById("copied-msg").style.display = "none";
         }, 2000);
       });
     }
 
     function clearAll() {
-      document.getElementById("lootInput").value = "";
-      document.getElementById("lootResults").innerText = "";
-    }
-
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        generateLoot();
-      }
+      document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
     }
   </script>
 </body>
