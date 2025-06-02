@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>หน้า Loot</title>
-  <link rel="icon" type="image/png" href="icostar.png">
+  <title>Loot</title>
   <style>
     body {
       font-family: 'Sarabun', sans-serif;
@@ -16,19 +15,18 @@
       background: white;
       border-radius: 15px;
       padding: 20px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input[type="text"] {
       width: 80%;
-      padding: 8px;
-      margin: 10px 0;
+      padding: 10px;
       font-size: 18px;
     }
     button {
       margin: 5px;
-      padding: 10px 24px;
+      padding: 10px 20px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
@@ -37,79 +35,72 @@
       color: white;
     }
     .result-box {
-      background-color: #e0ffe0;
       margin-top: 20px;
       padding: 14px;
+      background-color: #e6ffe6;
       border-radius: 12px;
-    }
-    .copy-btn {
-      background-color: #007bff;
-      margin-top: 10px;
+      text-align: left;
     }
     .copied-msg {
-      display: inline-block;
-      margin-left: 10px;
       color: green;
       font-weight: bold;
+      display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h3>วินเลขแบบรูด 19 ประตู (หน้า Loot)</h3>
-    <input type="text" id="lootInput" placeholder="ป้อนเลข เช่น 12 45" onkeypress="checkEnter(event)" />
+    <h3>หน้า Loot วินเลข 19 ประตู</h3>
+    <input type="text" id="lootInput" placeholder="ใส่เลข เช่น 1 4 7 6 9" onkeypress="checkEnter(event)" />
     <div>
       <button onclick="generateLoot()">วินเลข</button>
-      <button onclick="resetAll()">เริ่มใหม่</button>
-      <button onclick="goHome()">กลับหน้าหลัก</button>
+      <button onclick="clearAll()">เริ่มใหม่</button>
+      <button onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
     </div>
-    <div id="lootResult"></div>
+
+    <div id="lootResults" class="result-box"></div>
+    <button onclick="copyAll()">คัดลอกทั้งหมด</button>
+    <div id="copyMsg" class="copied-msg">คัดลอกแล้ว!</div>
   </div>
 
   <script>
     function generateLoot() {
       const input = document.getElementById("lootInput").value.trim();
-      if (!input) {
-        alert("กรุณากรอกเลขก่อน");
+      const digits = input.split(/\s+/).filter(d => /^\d$/.test(d));
+
+      if (digits.length === 0) {
+        alert("กรุณาใส่เลขอย่างน้อย 1 ตัว");
         return;
       }
-      const numbers = input.split(/\s+/);
-      let resultHTML = "";
-      numbers.forEach((num) => {
-        const lootSet = [];
+
+      let output = "";
+
+      digits.forEach((digit, index) => {
+        let set = new Set();
         for (let i = 0; i <= 9; i++) {
-          lootSet.push(num + i);
-          lootSet.push(i + num);
+          set.add(`${i}${digit}`);
+          set.add(`${digit}${i}`);
         }
-        const uniqueSet = [...new Set(lootSet)].sort();
-        const uid = Math.random().toString(36).substr(2, 5);
-        resultHTML += `
-          <div class="result-box">
-            <div><strong>รูด ${num}</strong></div>
-            <div class="red">${uniqueSet.join(" ")}</div>
-            <button class="copy-btn" onclick="copyLootText(\`${uniqueSet.join(" ")}\`, '${uid}')">คัดลอก</button>
-            <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-          </div>
-        `;
+        output += `[${index + 1}] รูด ${digit}: ${Array.from(set).sort().join(' ')}  \n\n`;
       });
-      document.getElementById("lootResult").innerHTML = resultHTML;
+
+      document.getElementById("lootResults").innerText = output.trim();
     }
 
-    function copyLootText(text, uid) {
+    function copyAll() {
+      const text = document.getElementById("lootResults").innerText;
       navigator.clipboard.writeText(text).then(() => {
-        const msg = document.getElementById("copied-" + uid);
-        msg.style.display = "inline-block";
-        setTimeout(() => msg.style.display = "none", 2000);
+        document.getElementById("copyMsg").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("copyMsg").style.display = "none";
+        }, 2000);
       });
     }
 
-    function resetAll() {
+    function clearAll() {
       document.getElementById("lootInput").value = "";
-      document.getElementById("lootResult").innerHTML = "";
-    }
-
-    function goHome() {
-      window.location.href = "index.html";
+      document.getElementById("lootResults").innerText = "";
     }
 
     function checkEnter(event) {
