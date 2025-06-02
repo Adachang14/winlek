@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>หน้า Loot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>รูดเลข</title>
   <style>
     body {
       font-family: 'Sarabun', sans-serif;
-      background: #f0f8ff;
-      padding: 20px;
+      background: #fff8dc;
       text-align: center;
+      padding: 20px;
     }
     .container {
       background: white;
@@ -20,31 +20,33 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input[type="text"] {
-      width: 80%;
+      width: 90%;
       padding: 10px;
       margin: 10px 0;
       font-size: 18px;
     }
     button {
-      margin: 5px;
+      margin: 6px;
       padding: 10px 24px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      background-color: #2196F3;
+      background-color: #4CAF50;
       color: white;
     }
-    .result-box {
-      background-color: #d0f5d8;
-      margin-top: 20px;
-      padding: 14px;
-      border-radius: 12px;
-      text-align: left;
-      white-space: pre-line;
-    }
     .copy-btn {
-      background-color: #007bff;
+      background-color: #2196F3;
+    }
+    .red {
+      color: red;
+      font-weight: bold;
+    }
+    .result-box {
+      background-color: #e0f7fa;
+      padding: 10px;
+      margin-top: 12px;
+      border-radius: 10px;
     }
     .copied-msg {
       display: inline-block;
@@ -56,10 +58,10 @@
 </head>
 <body>
   <div class="container">
-    <h2>หน้า Loot</h2>
-    <input type="text" id="input" placeholder="กรอกเช่น 6/5 2/0 7/9..." onkeypress="checkEnter(event)">
+    <h2>ระบบรูดเลข (By อิอ้วน)</h2>
+    <input type="text" id="input" placeholder="ใส่เลข เช่น 6/5 2/0 ร9 ร4 7 8" onkeypress="checkEnter(event)" />
     <div>
-      <button onclick="generateLoot()">แสดงผล</button>
+      <button onclick="generate()">วินรูด</button>
       <button onclick="clearAll()">เริ่มใหม่</button>
       <button onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
     </div>
@@ -67,68 +69,72 @@
   </div>
 
   <script>
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        generateLoot();
-      }
+    function extractDigits(text) {
+      // เอาเฉพาะเลขเดี่ยวจากข้อความ เช่น "ร1", "6/5", "1,2" => ['1', '2', ...]
+      const found = text.match(/\d/g); // ดึงทุกตัวที่เป็นเลขเดี่ยว
+      return [...new Set(found)].sort(); // ลบเลขซ้ำ เรียงลำดับ
     }
 
-    function generateLoot() {
-      let input = document.getElementById("input").value.trim();
-      if (!input) return;
+    function generate() {
+      const input = document.getElementById("input").value;
+      const digits = extractDigits(input);
+      const resultDiv = document.getElementById("results");
+      resultDiv.innerHTML = "";
 
-      const pairs = input.split(/\s+/);
-      let output = "";
-      let allNumbers = [];
+      if (digits.length === 0) {
+        resultDiv.innerHTML = "<p class='red'>กรุณาใส่เลขก่อนนะ</p>";
+        return;
+      }
 
-      pairs.forEach((pair, index) => {
-        const [a, b] = pair.split("/");
-        if (!a || !b) return;
+      const allResults = [];
 
+      digits.forEach((digit, index) => {
         const nums = [];
         for (let i = 0; i <= 9; i++) {
-          nums.push(a + i);
+          nums.push(`${i}${digit}`);
+          nums.push(`${digit}${i}`);
         }
-        for (let i = 0; i <= 9; i++) {
-          if (i != a) nums.push(i + a);
-        }
-        for (let i = 0; i <= 9; i++) {
-          nums.push(b + i);
-        }
-        for (let i = 0; i <= 9; i++) {
-          if (i != b) nums.push(i + b);
-        }
+        const uniqueNums = [...new Set(nums)];
+        allResults.push(`[${index + 1}] รูด ${digit}: ${uniqueNums.join(' ')}`);
 
-        const uniqueNums = Array.from(new Set(nums));
-        allNumbers.push(...uniqueNums);
-
-        output += `[${index + 1}] รูด ${a}: ${uniqueNums.filter(n => n.startsWith(a) || n.endsWith(a)).join(" ")}\n`;
+        const box = document.createElement("div");
+        box.className = "result-box";
+        box.innerHTML = `<div class="red">${allResults[allResults.length - 1]}</div>`;
+        resultDiv.appendChild(box);
       });
 
-      document.getElementById("results").innerHTML = `
-        <div class="result-box">
-          ${output}
-          <br>
-          <button class="copy-btn" onclick="copyAll()">คัดลอก</button>
-          <span id="copied-msg" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-        </div>
-      `;
+      // ปุ่มคัดลอกทั้งหมด
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.innerText = "คัดลอกทั้งหมด";
+      copyBtn.onclick = () => copyText(allResults.join('\n'));
+      resultDiv.appendChild(copyBtn);
 
-      window.allNumbersText = output;
+      const copiedMsg = document.createElement("span");
+      copiedMsg.id = "copied-msg";
+      copiedMsg.className = "copied-msg";
+      copiedMsg.style.display = "none";
+      copiedMsg.innerText = "คัดลอกแล้ว!";
+      resultDiv.appendChild(copiedMsg);
     }
 
-    function copyAll() {
-      navigator.clipboard.writeText(window.allNumbersText).then(() => {
-        document.getElementById("copied-msg").style.display = "inline-block";
-        setTimeout(() => {
-          document.getElementById("copied-msg").style.display = "none";
-        }, 2000);
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-msg");
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
       });
     }
 
     function clearAll() {
       document.getElementById("input").value = "";
       document.getElementById("results").innerHTML = "";
+    }
+
+    function checkEnter(e) {
+      if (e.key === "Enter") {
+        generate();
+      }
     }
   </script>
 </body>
