@@ -53,14 +53,12 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-    #copy-status {
-      margin-top: 10px;
-      font-weight: bold;
-      color: green;
-    }
     .radio-group {
       margin: 10px 0;
-      font-size: 16px;
+      font-size: 14px;
+    }
+    h2 {
+      font-size: 20px;
     }
   </style>
 </head>
@@ -70,9 +68,9 @@
     <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/2/2 หรือ ร1 ร2 หรือ 1234" onkeypress="checkEnter(event)" />
 
     <div class="radio-group">
-      <label><input type="radio" name="roodType" value="front"> รูดหน้า</label>
-      <label><input type="radio" name="roodType" value="back"> รูดหลัง</label>
-      <label><input type="radio" name="roodType" value="both" checked> 19 ประตู</label>
+      <label><input type="radio" name="roodType" value="หน้า"> รูดหน้า</label>
+      <label><input type="radio" name="roodType" value="หลัง"> รูดหลัง</label>
+      <label><input type="radio" name="roodType" value="19" checked> 19 ประตู</label>
     </div>
 
     <div>
@@ -81,7 +79,6 @@
       <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
       <button class="btn-back" onclick="goBack()">กลับหน้าหลัก</button>
     </div>
-    <div id="copy-status"></div>
     <br>
     <pre id="results"></pre>
   </div>
@@ -89,52 +86,59 @@
   <script>
     function parseInput(input) {
       input = input.toLowerCase()
-        .replace(/ร/g, '') 
-        .replace(/[^\d]/g, '') 
-        .split('')
-        .filter(n => n !== '');
-      return input;
+        .replace(/ร/g, '')
+        .replace(/[^\d]+/g, ' ') // แทนทุกตัวไม่ใช่เลขด้วยช่องว่าง
+        .trim();
+
+      let parts = input.split(/\s+/); // แยกด้วยช่องว่างทั้งหมด
+      let nums = [];
+
+      parts.forEach(part => {
+        if (part.length > 1) {
+          nums.push(...part.split(''));
+        } else {
+          nums.push(part);
+        }
+      });
+
+      return nums;
     }
 
     function buildRood(num, type) {
       let result = [];
       for (let i = 0; i <= 9; i++) {
-        if (type === 'front') {
-          result.push(num + i);
-        } else if (type === 'back') {
-          result.push(i + num);
-        } else {
+        if (type === 'หน้า') result.push(num + i);
+        else if (type === 'หลัง') result.push(i + num);
+        else {
           result.push(num + i);
           result.push(i + num);
         }
       }
-      return [...new Set(result)];
+      return [...new Set(result)]; // เอาเลขซ้ำออก
     }
 
     function toThaiNumber(n) {
-      return n.toString().replace(/\d/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]);
+      const thNums = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+      return n.toString().split('').map(d => thNums[+d] || d).join('');
     }
 
     function generateRood() {
       const input = document.getElementById("input").value;
       const resultsDiv = document.getElementById("results");
-      const copyStatus = document.getElementById("copy-status");
       resultsDiv.innerHTML = '';
-      copyStatus.textContent = '';
 
-      const nums = parseInput(input);
       const type = document.querySelector('input[name="roodType"]:checked').value;
+      const nums = parseInput(input);
 
       if (nums.length === 0) {
-        alert('กรุณากรอกเลขอย่างน้อย 1 ตัว');
+        resultsDiv.textContent = 'กรุณากรอกเลขอย่างน้อย 1 ตัว';
         return;
       }
 
       let resultText = '';
       nums.forEach((num, index) => {
         const roods = buildRood(num, type);
-        const thaiIndex = toThaiNumber(index + 1);
-        resultText += `[${thaiIndex}] รูด ${num}: ${roods.join(' ')}\n`;
+        resultText += `[${toThaiNumber(index + 1)}] รูด ${num}: ${roods.join(' ')}\n`;
       });
 
       resultsDiv.textContent = resultText.trim();
@@ -142,20 +146,18 @@
 
     function copyAll() {
       const text = document.getElementById("results").textContent;
-      const copyStatus = document.getElementById("copy-status");
-      if (!text) {
-        copyStatus.textContent = '';
-        return;
-      }
+      if (!text) return;
+
       navigator.clipboard.writeText(text).then(() => {
-        copyStatus.textContent = 'คัดลอกแล้ว';
+        const copyBtn = document.querySelector('.btn-copy');
+        copyBtn.textContent = 'คัดลอกแล้ว!';
+        setTimeout(() => copyBtn.textContent = 'คัดลอกทั้งหมด', 2000);
       });
     }
 
     function clearAll() {
       document.getElementById("input").value = '';
       document.getElementById("results").textContent = '';
-      document.getElementById("copy-status").textContent = '';
     }
 
     function checkEnter(event) {
