@@ -58,12 +58,23 @@
       font-weight: bold;
       color: green;
     }
+    .radio-group {
+      margin: 10px 0;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>รูดยาว ผลลัพรูด19ประตูรวมกลับมาเเล้ว ห้ามกลับซ้ำ</h2>
+    <h2>ระบบรูดยาว</h2>
     <input type="text" id="input" placeholder="พิมพ์เลข เช่น 1/2/2 หรือ ร1 ร2 หรือ 1234" onkeypress="checkEnter(event)" />
+
+    <div class="radio-group">
+      <label><input type="radio" name="roodType" value="front"> รูดหน้า</label>
+      <label><input type="radio" name="roodType" value="back"> รูดหลัง</label>
+      <label><input type="radio" name="roodType" value="both" checked> 19 ประตู</label>
+    </div>
+
     <div>
       <button onclick="generateRood()">รูดเลย</button>
       <button class="btn-clear" onclick="clearAll()">เริ่มใหม่</button>
@@ -78,22 +89,26 @@
   <script>
     function parseInput(input) {
       input = input.toLowerCase()
-        .replace(/ร/g, '') // ลบตัว ร
-        .replace(/[^\d]/g, '') // เหลือแค่ตัวเลขติดกัน เช่น 12345
-        .split('') // แยกทุกตัวออก
+        .replace(/ร/g, '') 
+        .replace(/[^\d]/g, '') 
+        .split('')
         .filter(n => n !== '');
-
       return input;
     }
 
-    function buildRood(num) {
-      let front = [], back = [];
+    function buildRood(num, type) {
+      let result = [];
       for (let i = 0; i <= 9; i++) {
-        front.push(num + i);
-        back.push(i + num);
+        if (type === 'front') {
+          result.push(num + i);
+        } else if (type === 'back') {
+          result.push(i + num);
+        } else {
+          result.push(num + i);
+          result.push(i + num);
+        }
       }
-      let full = front.concat(back.filter(n => !front.includes(n)));
-      return full;
+      return [...new Set(result)];
     }
 
     function toThaiNumber(n) {
@@ -108,6 +123,7 @@
       copyStatus.textContent = '';
 
       const nums = parseInput(input);
+      const type = document.querySelector('input[name="roodType"]:checked').value;
 
       if (nums.length === 0) {
         alert('กรุณากรอกเลขอย่างน้อย 1 ตัว');
@@ -116,7 +132,7 @@
 
       let resultText = '';
       nums.forEach((num, index) => {
-        const roods = buildRood(num);
+        const roods = buildRood(num, type);
         const thaiIndex = toThaiNumber(index + 1);
         resultText += `[${thaiIndex}] รูด ${num}: ${roods.join(' ')}\n`;
       });
