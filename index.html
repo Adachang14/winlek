@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>วินเลข</title>
   <link rel="icon" type="image/png" href="icostar.png">
-   <!-- Google Analytics -->
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5QWYMLXEDM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -82,26 +82,38 @@
       background-color: #007bff;
     }
 
-    .mini-copy {
-      font-size: 13px;
-      padding: 5px 12px;
-      margin: 3px;
-      background-color: #007bff;
-    }
-
-    .combo-buttons {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end; /* ชิดขวา */
-      margin-top: 10px;
-    }
-
     .copied-msg {
       display: inline-block;
       margin-left: 10px;
       color: green;
       font-weight: bold;
+    }
+
+    /* ===== ปุ่มลอยขวา (ใหม่) ===== */
+    .combo-floating {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;           /* โชว์เมื่อวินเลขแล้ว */
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      z-index: 9999;
+    }
+    .combo-floating .mini-copy {
+      font-size: 13px;
+      padding: 6px 12px;
+      margin: 0;
+      background-color: #007bff; /* ให้สีเดียวกับปุ่มคัดลอกเดิม */
+      border-radius: 8px;
+    }
+    .combo-floating .copied-msg {
       font-size: 12px;
+      margin: 0 0 8px 0;
+      color: green;
+      font-weight: bold;
+      display: none;
     }
   </style>
 </head>
@@ -126,6 +138,14 @@
     <div id="results"></div>
   </div>
 
+  <!-- ปุ่มลอยขวา (แสดงหลังวินเลขเท่านั้น) -->
+  <div id="comboFloating" class="combo-floating">
+    <button class="mini-copy" onclick="copyCombo('noDup')">2/3ตัวไม่รวมเบิ้ล</button>
+    <span id="copied-noDup" class="copied-msg">คัดลอกแล้ว!</span>
+    <button class="mini-copy" onclick="copyCombo('mix')">2/3ตัวพี่แคท</button>
+    <span id="copied-mix" class="copied-msg">คัดลอกแล้ว!</span>
+  </div>
+
   <script>
     let allResults = {
       win2NoDup: [],
@@ -139,20 +159,14 @@
 
     function getUniqueCombinations(arr, size, allowDuplicates = false) {
       let result = [];
-
       const combine = (current, start) => {
         if (current.length === size) {
           let str = current.join('');
-          if (allowDuplicates || !/(.).*?\1/.test(str)) {
-            result.push(str);
-          }
+          if (allowDuplicates || !/(.).*?\1/.test(str)) result.push(str);
           return;
         }
-        for (let i = start; i < arr.length; i++) {
-          combine([...current, arr[i]], i + 1);
-        }
+        for (let i = start; i < arr.length; i++) combine([...current, arr[i]], i + 1);
       };
-
       combine([], 0);
       return result;
     }
@@ -193,7 +207,6 @@
         alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
         return;
       }
-
       if (hasDuplicates(input)) {
         alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
         return;
@@ -210,40 +223,36 @@
         </div>
       `;
 
-      // เก็บผลลัพธ์
+      // 3 ตัวไม่รวมเบิ้ล
       const win3NoDup = getUniqueCombinations(digits, 3, false);
       addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
       allResults.win3NoDup = win3NoDup;
 
+      // 2 ตัวไม่รวมเบิ้ล
       const win2NoDup = getUniqueCombinations(digits, 2, false);
       addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
       allResults.win2NoDup = win2NoDup;
 
+      // 3 ตัวรวมเบิ้ล
       const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
       addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
       allResults.win3WithDup = win3WithDupOrdered;
 
+      // 2 ตัวรวมเบิ้ล
       const win2WithDup = getAllPairsWithDupes(digits);
       addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
 
-      // ⭐ ปุ่มใหม่ด้านขวา
-      const comboBox = document.createElement("div");
-      comboBox.className = "combo-buttons";
-      comboBox.innerHTML = `
-        <button class="mini-copy" onclick="copyCombo('noDup')">2/3ตัวไม่รวมเบิ้ล</button>
-        <span id="copied-noDup" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-        <button class="mini-copy" onclick="copyCombo('mix')">2/3ตัวพี่แคท</button>
-        <span id="copied-mix" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-      `;
-      resultsDiv.appendChild(comboBox);
+      // โชว์ปุ่มลอยขวา
+      document.getElementById('comboFloating').style.display = 'flex';
+      // ซ่อนข้อความ "คัดลอกแล้ว!" ทุกครั้งที่คำนวณใหม่
+      document.getElementById('copied-noDup').style.display = 'none';
+      document.getElementById('copied-mix').style.display = 'none';
     }
 
     function addResult(title, list) {
       const box = document.createElement("div");
       box.className = "result-box";
-
       const uid = Math.random().toString(36).substring(2, 7);
-
       box.innerHTML = `
         <div><strong>${title}</strong></div>
         <div class="red">${list.join(' ')}</div>
@@ -265,13 +274,16 @@
     function copyCombo(type) {
       let text = "";
       if (type === "noDup") {
+        // 3 ตัวไม่รวมเบิ้ล + 2 ตัวไม่รวมเบิ้ล
         text = allResults.win3NoDup.concat(allResults.win2NoDup).join(" ");
       } else if (type === "mix") {
+        // 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
         text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
       }
       if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
-        const msg = document.getElementById("copied-" + type);
+        const msgId = type === 'noDup' ? 'copied-noDup' : 'copied-mix';
+        const msg = document.getElementById(msgId);
         msg.style.display = "inline-block";
         setTimeout(() => msg.style.display = "none", 2000);
       });
@@ -281,12 +293,12 @@
       document.getElementById("input").value = "";
       document.getElementById("results").innerHTML = "";
       allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
+      // ซ่อนปุ่มลอยขวาเมื่อกดเริ่มใหม่
+      document.getElementById('comboFloating').style.display = 'none';
     }
 
     function checkEnter(event) {
-      if (event.key === "Enter") {
-        win();
-      }
+      if (event.key === "Enter") win();
     }
 
     document.getElementById("input").addEventListener("input", function () {
