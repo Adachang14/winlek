@@ -183,3 +183,101 @@
         alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
         return;
       }
+      if (input.length > 7) {
+        alert("วินได้ไม่เกิน 7ตัว เเจ้งลค.ว่า= วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
+        return;
+      }
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+        </div>
+      `;
+
+      // เก็บผลลัพธ์
+      const win3NoDup = getUniqueCombinations(digits, 3, false);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
+      allResults.win3NoDup = win3NoDup;
+
+      const win2NoDup = getUniqueCombinations(digits, 2, false);
+      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
+      allResults.win2NoDup = win2NoDup;
+
+      const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
+      addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
+      allResults.win3WithDup = win3WithDupOrdered;
+
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+
+      // ⭐ ปุ่มใหม่ 2 ปุ่ม
+      const comboBox = document.createElement("div");
+      comboBox.className = "result-box";
+      comboBox.innerHTML = `
+        <button class="copy-btn" onclick="copyCombo('noDup')">=2/3ตัวไม่รวมเบิ้ล</button>
+        <span id="copied-noDup" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+        <br>
+        <button class="copy-btn" onclick="copyCombo('mix')">=2/3ตัวพี่แคท</button>
+        <span id="copied-mix" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+      `;
+      resultsDiv.appendChild(comboBox);
+    }
+
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
+
+      const uid = Math.random().toString(36).substring(2, 7);
+
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join(' ')}</div>
+        <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join(' ')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+      `;
+      document.getElementById("results").appendChild(box);
+    }
+
+    function copyText(text, uid) {
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
+    }
+
+    function copyCombo(type) {
+      let text = "";
+      if (type === "noDup") {
+        text = allResults.win3NoDup.concat(allResults.win2NoDup).join(" ");
+      } else if (type === "mix") {
+        text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
+      }
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-" + type);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
+    }
+
+    function clearAll() {
+      document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
+      allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter") {
+        win();
+      }
+    }
+
+    document.getElementById("input").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+  </script>
+</body>
+</html>
