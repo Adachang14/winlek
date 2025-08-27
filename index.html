@@ -89,7 +89,7 @@
       font-weight: bold;
     }
 
-    /* ===== ปุ่มลอยขวา (ใหม่) ===== */
+    /* ===== ปุ่มลอยขวา (เหลือปุ่มเดียว: 2/3ตัวพี่แคท) ===== */
     .combo-floating {
       position: fixed;
       right: 20px;
@@ -101,12 +101,11 @@
       gap: 8px;
       z-index: 9999;
     }
-    .combo-floating .mini-copy {
-      font-size: 13px;
-      padding: 6px 12px;
-      margin: 0;
-      background-color: #007bff; /* ให้สีเดียวกับปุ่มคัดลอกเดิม */
-      border-radius: 8px;
+    .combo-floating .kat-btn {
+      font-size: 15px;         /* ใหญ่ขึ้น */
+      padding: 10px 16px;      /* ใหญ่ขึ้น */
+      background-color: #007bff; /* สีเดียวกับปุ่มคัดลอก */
+      border-radius: 10px;
     }
     .combo-floating .copied-msg {
       font-size: 12px;
@@ -138,11 +137,9 @@
     <div id="results"></div>
   </div>
 
-  <!-- ปุ่มลอยขวา (แสดงหลังวินเลขเท่านั้น) -->
+  <!-- ปุ่มลอยขวา: คัดลอก 2/3ตัวพี่แคท -->
   <div id="comboFloating" class="combo-floating">
-    <button class="mini-copy" onclick="copyCombo('noDup')">2/3ตัวไม่รวมเบิ้ล</button>
-    <span id="copied-noDup" class="copied-msg">คัดลอกแล้ว!</span>
-    <button class="mini-copy" onclick="copyCombo('mix')">2/3ตัวพี่แคท</button>
+    <button class="kat-btn" onclick="copyCombo()">2/3ตัวพี่แคท</button>
     <span id="copied-mix" class="copied-msg">คัดลอกแล้ว!</span>
   </div>
 
@@ -242,10 +239,8 @@
       const win2WithDup = getAllPairsWithDupes(digits);
       addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
 
-      // โชว์ปุ่มลอยขวา
+      // โชว์ปุ่มลอยขวา (พี่แคท)
       document.getElementById('comboFloating').style.display = 'flex';
-      // ซ่อนข้อความ "คัดลอกแล้ว!" ทุกครั้งที่คำนวณใหม่
-      document.getElementById('copied-noDup').style.display = 'none';
       document.getElementById('copied-mix').style.display = 'none';
     }
 
@@ -271,19 +266,12 @@
       });
     }
 
-    function copyCombo(type) {
-      let text = "";
-      if (type === "noDup") {
-        // 3 ตัวไม่รวมเบิ้ล + 2 ตัวไม่รวมเบิ้ล
-        text = allResults.win3NoDup.concat(allResults.win2NoDup).join(" ");
-      } else if (type === "mix") {
-        // 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
-        text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
-      }
+    // ปุ่มพี่แคท: 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
+    function copyCombo() {
+      const text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
       if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
-        const msgId = type === 'noDup' ? 'copied-noDup' : 'copied-mix';
-        const msg = document.getElementById(msgId);
+        const msg = document.getElementById('copied-mix');
         msg.style.display = "inline-block";
         setTimeout(() => msg.style.display = "none", 2000);
       });
@@ -293,7 +281,6 @@
       document.getElementById("input").value = "";
       document.getElementById("results").innerHTML = "";
       allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
-      // ซ่อนปุ่มลอยขวาเมื่อกดเริ่มใหม่
       document.getElementById('comboFloating').style.display = 'none';
     }
 
