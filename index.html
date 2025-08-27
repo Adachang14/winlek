@@ -112,6 +112,12 @@
   </div>
 
   <script>
+    let allResults = {
+      win2NoDup: [],
+      win3NoDup: [],
+      win3WithDup: []
+    };
+
     function hasDuplicates(str) {
       return /(.).*\1/.test(str);
     }
@@ -177,69 +183,3 @@
         alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
         return;
       }
-      if (input.length > 7) {
-        alert("วินได้ไม่เกิน 7ตัว เเจ้งลค.ว่า= วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
-        return;
-      }
-
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = `
-        <div class="result-box">
-          <strong>เลขเด่น ${input}</strong>
-        </div>
-      `;
-
-      const win3NoDup = getUniqueCombinations(digits, 3, false);
-      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
-
-      const win2NoDup = getUniqueCombinations(digits, 2, false);
-      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
-
-      const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
-      addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
-
-      const win2WithDup = getAllPairsWithDupes(digits);
-      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
-    }
-
-    function addResult(title, list) {
-      const box = document.createElement("div");
-      box.className = "result-box";
-
-      const uid = Math.random().toString(36).substr(2, 5);
-
-      box.innerHTML = `
-        <div><strong>${title}</strong></div>
-        <div class="red">${list.join(' ')}</div>
-        <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
-        <button class="copy-btn" onclick="copyText(\`${list.join(' ')}\`, '${uid}')">คัดลอก</button>
-        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-      `;
-      document.getElementById("results").appendChild(box);
-    }
-
-    function copyText(text, uid) {
-      navigator.clipboard.writeText(text).then(() => {
-        const msg = document.getElementById("copied-" + uid);
-        msg.style.display = "inline-block";
-        setTimeout(() => msg.style.display = "none", 2000);
-      });
-    }
-
-    function clearAll() {
-      document.getElementById("input").value = "";
-      document.getElementById("results").innerHTML = "";
-    }
-
-    function checkEnter(event) {
-      if (event.key === "Enter") {
-        win();
-      }
-    }
-
-    document.getElementById("input").addEventListener("input", function () {
-      this.value = this.value.replace(/\D/g, '');
-    });
-  </script>
-</body>
-</html>
