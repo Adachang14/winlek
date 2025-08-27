@@ -82,11 +82,26 @@
       background-color: #007bff;
     }
 
+    .mini-copy {
+      font-size: 13px;
+      padding: 5px 12px;
+      margin: 3px;
+      background-color: #007bff;
+    }
+
+    .combo-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; /* ชิดขวา */
+      margin-top: 10px;
+    }
+
     .copied-msg {
       display: inline-block;
       margin-left: 10px;
       color: green;
       font-weight: bold;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -211,14 +226,13 @@
       const win2WithDup = getAllPairsWithDupes(digits);
       addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
 
-      // ⭐ ปุ่มใหม่ 2 ปุ่ม
+      // ⭐ ปุ่มใหม่ด้านขวา
       const comboBox = document.createElement("div");
-      comboBox.className = "result-box";
+      comboBox.className = "combo-buttons";
       comboBox.innerHTML = `
-        <button class="copy-btn" onclick="copyCombo('noDup')">=2/3ตัวไม่รวมเบิ้ล</button>
+        <button class="mini-copy" onclick="copyCombo('noDup')">2/3ตัวไม่รวมเบิ้ล</button>
         <span id="copied-noDup" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
-        <br>
-        <button class="copy-btn" onclick="copyCombo('mix')">=2/3ตัวพี่แคท</button>
+        <button class="mini-copy" onclick="copyCombo('mix')">2/3ตัวพี่แคท</button>
         <span id="copied-mix" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
       `;
       resultsDiv.appendChild(comboBox);
