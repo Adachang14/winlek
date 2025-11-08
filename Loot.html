@@ -170,5 +170,36 @@
       window.location.href = "index.html";
     }
   </script>
+
+  <!-- ✅ เพิ่มเฉพาะฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
+  <script>
+    (function () {
+      function focusInput() {
+        var el = document.getElementById('input');
+        if (!el) return;
+        el.focus({ preventScroll: true });
+        try { el.select && el.select(); } catch (_) {}
+      }
+
+      // โฟกัสตอนเปิดหน้า/โหลดจาก bfcache
+      window.addEventListener('load', focusInput);
+      window.addEventListener('pageshow', focusInput);
+
+      // กลับมาที่แท็บนี้ → โฟกัสทันที
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) setTimeout(focusInput, 0);
+      });
+
+      // ถ้ากดปุ่มที่สื่อความหมายว่ารีเซ็ต/เริ่มใหม่/กลับ ก็โฟกัสกลับที่ช่อง
+      document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t) return;
+        var txt = (t.innerText || t.value || '').trim();
+        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset|กลับหน้าหลัก)/i.test(txt)) {
+          setTimeout(focusInput, 0);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
