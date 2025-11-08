@@ -171,34 +171,34 @@
     }
   </script>
 
-  <!-- ✅ เพิ่มเฉพาะฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
+  <!-- ✅ โฟกัสอัตโนมัติ (ไม่แย่งตอนลากเลือก/คัดลอก) -->
   <script>
     (function () {
+      function hasSelection() {
+        var sel = window.getSelection && window.getSelection();
+        return sel && sel.rangeCount > 0 && sel.toString().length > 0;
+      }
       function focusInput() {
+        if (hasSelection()) return;
         var el = document.getElementById('input');
         if (!el) return;
         el.focus({ preventScroll: true });
         try { el.select && el.select(); } catch (_) {}
       }
 
-      // โฟกัสตอนเปิดหน้า/โหลดจาก bfcache
+      // เหตุการณ์ที่ควรโฟกัสจริงๆ
       window.addEventListener('load', focusInput);
       window.addEventListener('pageshow', focusInput);
-
-      // กลับมาที่แท็บนี้ → โฟกัสทันที
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(focusInput, 0);
       });
 
-      // ถ้ากดปุ่มที่สื่อความหมายว่ารีเซ็ต/เริ่มใหม่/กลับ ก็โฟกัสกลับที่ช่อง
-      document.addEventListener('click', function (e) {
-        var t = e.target;
-        if (!t) return;
-        var txt = (t.innerText || t.value || '').trim();
-        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset|กลับหน้าหลัก)/i.test(txt)) {
-          setTimeout(focusInput, 0);
-        }
-      });
+      // โฟกัสเฉพาะหลังปุ่มที่ตั้งใจ (ไม่ผูก click ทั้งหน้า)
+      var resetBtn = document.querySelector('.btn-clear');
+      if (resetBtn) resetBtn.addEventListener('click', function(){ setTimeout(focusInput, 0); });
+
+      var backBtn = document.querySelector('.btn-back');
+      if (backBtn) backBtn.addEventListener('click', function(){ setTimeout(focusInput, 0); });
     })();
   </script>
 </body>
