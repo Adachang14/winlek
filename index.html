@@ -239,7 +239,6 @@
       const win2WithDup = getAllPairsWithDupes(digits);
       addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
 
-      // โชว์ปุ่มลอยขวา (พี่แคท)
       document.getElementById('comboFloating').style.display = 'flex';
       document.getElementById('copied-mix').style.display = 'none';
     }
@@ -266,7 +265,6 @@
       });
     }
 
-    // ปุ่มพี่แคท: 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
     function copyCombo() {
       const text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
       if (!text) return;
@@ -293,55 +291,29 @@
     });
   </script>
 
-  <!-- ✅ เพิ่มเฉพาะฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
+  <!-- ✅ ฟังก์ชันโฟกัสช่องพิมเลขอัตโนมัติ (เวอร์ชันใหม่ ป้องกันเด้งเวลาเลือกผลลัพธ์) -->
   <script>
     (function () {
-      function getInput() {
-        const candidates = [
-          document.getElementById('input'),
-          document.querySelector('[data-winlek-input]'),
-          document.querySelector('input[type="text"]'),
-          document.querySelector('input:not([type]), input[type="search"], textarea')
-        ].filter(Boolean);
-
-        for (const el of candidates) {
-          const style = window.getComputedStyle(el);
-          if (!el.disabled && style.visibility !== 'hidden' && style.display !== 'none') {
-            return el;
-          }
-        }
-        return candidates[0] || null;
+      function hasSelection() {
+        var sel = window.getSelection && window.getSelection();
+        return sel && sel.rangeCount > 0 && sel.toString().length > 0;
       }
-
       function focusInput() {
-        const el = getInput();
+        if (hasSelection()) return;
+        var el = document.getElementById('input');
         if (!el) return;
         el.focus({ preventScroll: true });
         try { el.select && el.select(); } catch (_) {}
       }
 
-      // โฟกัสตอนเปิดหน้า และตอนโหลดจาก bfcache
       window.addEventListener('load', focusInput);
       window.addEventListener('pageshow', focusInput);
-
-      // กลับมาที่แท็บนี้ → โฟกัสทันที
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(focusInput, 0);
       });
 
-      // ถ้ากด “เริ่มใหม่/รีเซ็ต/ล้าง” ให้โฟกัสกลับ
-      document.addEventListener('click', function (e) {
-        const t = e.target;
-        if (!t) return;
-        const txt = (t.innerText || t.value || '').trim();
-        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset)/i.test(txt)) {
-          setTimeout(focusInput, 0);
-        }
-      });
-
-      // จี้เฉพาะปุ่มที่มี id="reset-btn" (ถ้ามี)
-      const rb = document.getElementById('reset-btn');
-      if (rb) rb.addEventListener('click', () => setTimeout(focusInput, 0));
+      var rb = document.getElementById('reset-btn');
+      if (rb) rb.addEventListener('click', function () { setTimeout(focusInput, 0); });
     })();
   </script>
 </body>
