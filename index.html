@@ -2,163 +2,295 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>วินเลขครบวงจร</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>วินเลข</title>
   <link rel="icon" type="image/png" href="icostar.png">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5QWYMLXEDM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-5QWYMLXEDM');
+  </script>
   <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      background-color: #def9ff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      margin: 50px auto;
-      padding: 20px;
-      width: 400px;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h2 {
-      color: black;
-    }
-
-    input {
-      width: 350px;
-      padding: 8px;
-      border: 2px solid #000;
-      border-radius: 5px;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    button {
-      background-color: #1e90ff;
-      border: none;
-      color: white;
-      padding: 8px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      margin: 10px 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0073e6;
-    }
-
-    .right-buttons {
-      position: fixed;
+    .top-right {
+      position: absolute;
       top: 20px;
       right: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 5px;
     }
 
-    .right-buttons button {
-      width: 100px;
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #e0f7fa;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input[type="text"] {
+      width: 80%;
       padding: 8px;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 24px;
+      font-size: 16px;
+      border: none;
       border-radius: 8px;
+      cursor: pointer;
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .mini-button {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .result-box {
+      background-color: #d0f5d8;
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .red { color: red; font-weight: bold; }
+
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #007bff;
+    }
+
+    .copied-msg {
+      display: inline-block;
+      margin-left: 10px;
+      color: green;
       font-weight: bold;
     }
 
-    .green-btn {
-      background-color: #00b050;
+    /* ===== ปุ่มลอยขวา (เหลือปุ่มเดียว: 2/3ตัวพี่แคท) ===== */
+    .combo-floating {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;           /* โชว์เมื่อวินเลขแล้ว */
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      z-index: 9999;
     }
-
-    .green-btn:hover {
-      background-color: #009941;
+    .combo-floating .kat-btn {
+      font-size: 15px;         /* ใหญ่ขึ้น */
+      padding: 10px 16px;      /* ใหญ่ขึ้น */
+      background-color: #007bff; /* สีเดียวกับปุ่มคัดลอก */
+      border-radius: 10px;
+    }
+    .combo-floating .copied-msg {
+      font-size: 12px;
+      margin: 0 0 8px 0;
+      color: green;
+      font-weight: bold;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>วินเลขครบวงจร By อิอ้วน V.คนเล่ย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว</h2>
-    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" />
-    <br />
-    <button onclick="winlek()">วินเลข</button>
-    <button onclick="location.reload()">เริ่มใหม่</button>
-    <br />
-    <button onclick="clearResult()">ล้างเลข</button>
+    <!-- ปุ่มลอยขวาบน -->
+    <div class="top-right">
+      <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
+      <button class="mini-button" onclick="window.location.href='Loot.html'">รูดยาว</button>
+    </div>
+
+    <h3>วินเลขครบวงจร By อิอ้วน V.คนคีย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว</h3>
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" maxlength="10" onkeypress="checkEnter(event)" />
+    <div>
+      <button onclick="win()">วินเลข</button>
+      <button id="reset-btn" onclick="clearAll()">เริ่มใหม่</button>
+    </div>
+    <br>
+    <a href="index3.html">
+      <button type="button" class="blue-button">ลากเลข</button>
+    </a>
+    <div id="results"></div>
   </div>
 
-  <div class="right-buttons">
-    <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
-    <button class="green-btn" onclick="window.location.href='index3.html'">รูดเลข</button>
+  <!-- ปุ่มลอยขวา: คัดลอก 2/3ตัวพี่แคท -->
+  <div id="comboFloating" class="combo-floating">
+    <button class="kat-btn" onclick="copyCombo()">2/3ตัวพี่แคท</button>
+    <span id="copied-mix" class="copied-msg">คัดลอกแล้ว!</span>
   </div>
 
   <script>
-    function winlek() {
-      const input = document.getElementById("input").value.trim();
-      if (input.length < 3) {
-        alert("กรุณาใส่เลขอย่างน้อย 3 ตัว");
+    let allResults = {
+      win2NoDup: [],
+      win3NoDup: [],
+      win3WithDup: []
+    };
+
+    function hasDuplicates(str) {
+      return /(.).*\1/.test(str);
+    }
+
+    function getUniqueCombinations(arr, size, allowDuplicates = false) {
+      let result = [];
+      const combine = (current, start) => {
+        if (current.length === size) {
+          let str = current.join('');
+          if (allowDuplicates || !/(.).*?\1/.test(str)) result.push(str);
+          return;
+        }
+        for (let i = start; i < arr.length; i++) combine([...current, arr[i]], i + 1);
+      };
+      combine([], 0);
+      return result;
+    }
+
+    function getAllPairsWithDupes(arr) {
+      let pairs = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          pairs.push(arr[i] + arr[j]);
+        }
+      }
+      return pairs;
+    }
+
+    function getThreeWithDupesOrdered(arr) {
+      let results = [];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i; j < arr.length; j++) {
+          for (let k = j; k < arr.length; k++) {
+            results.push(arr[i] + arr[j] + arr[k]);
+          }
+        }
+      }
+      return results;
+    }
+
+    function toThaiNumber(num) {
+      const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+      return num.toString().split('').map(d => thaiDigits[d]).join('');
+    }
+
+    function win() {
+      let input = document.getElementById("input").value.trim();
+      input = input.replace(/\D/g, '');
+      const digits = input.split("");
+
+      if (input.length < 3 || digits.length > 10) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 10 ตัว");
         return;
       }
-      const nums = input.split("");
-      let results = [];
-      for (let i = 0; i < nums.length; i++) {
-        for (let j = 0; j < nums.length; j++) {
-          for (let k = 0; k < nums.length; k++) {
-            results.push(nums[i] + nums[j] + nums[k]);
-          }
-        }
+      if (hasDuplicates(input)) {
+        alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
+        return;
       }
-      alert("ผลลัพธ์รวมทั้งหมด (" + results.length + " ชุด)\n\n" + results.join(" "));
+      if (input.length > 7) {
+        alert("วินได้ไม่เกิน 7ตัว เเจ้งลค.ว่า= วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
+        return;
+      }
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <div class="result-box">
+          <strong>เลขเด่น ${input}</strong>
+        </div>
+      `;
+
+      // 3 ตัวไม่รวมเบิ้ล
+      const win3NoDup = getUniqueCombinations(digits, 3, false);
+      addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
+      allResults.win3NoDup = win3NoDup;
+
+      // 2 ตัวไม่รวมเบิ้ล
+      const win2NoDup = getUniqueCombinations(digits, 2, false);
+      addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
+      allResults.win2NoDup = win2NoDup;
+
+      // 3 ตัวรวมเบิ้ล
+      const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
+      addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
+      allResults.win3WithDup = win3WithDupOrdered;
+
+      // 2 ตัวรวมเบิ้ล
+      const win2WithDup = getAllPairsWithDupes(digits);
+      addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
+
+      // โชว์ปุ่มลอยขวา (พี่แคท)
+      document.getElementById('comboFloating').style.display = 'flex';
+      document.getElementById('copied-mix').style.display = 'none';
     }
 
-    function clearResult() {
+    function addResult(title, list) {
+      const box = document.createElement("div");
+      box.className = "result-box";
+      const uid = Math.random().toString(36).substring(2, 7);
+      box.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div class="red">${list.join(' ')}</div>
+        <div>(รวม ${toThaiNumber(list.length)} ชุด)</div>
+        <button class="copy-btn" onclick="copyText(\`${list.join(' ')}\`, '${uid}')">คัดลอก</button>
+        <span id="copied-${uid}" class="copied-msg" style="display:none;">คัดลอกแล้ว!</span>
+      `;
+      document.getElementById("results").appendChild(box);
+    }
+
+    function copyText(text, uid) {
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById("copied-" + uid);
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
+    }
+
+    // ปุ่มพี่แคท: 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
+    function copyCombo() {
+      const text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const msg = document.getElementById('copied-mix');
+        msg.style.display = "inline-block";
+        setTimeout(() => msg.style.display = "none", 2000);
+      });
+    }
+
+    function clearAll() {
       document.getElementById("input").value = "";
+      document.getElementById("results").innerHTML = "";
+      allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
+      document.getElementById('comboFloating').style.display = 'none';
     }
-  </script>
 
-  <!-- ✅ สคริปต์เพิ่มฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
-  <script>
-    (function () {
-      function getInput() {
-        const candidates = [
-          document.getElementById('input'),
-          document.querySelector('[data-winlek-input]'),
-          document.querySelector('input[type="text"]'),
-          document.querySelector('input:not([type]), input[type="search"], textarea')
-        ].filter(Boolean);
+    function checkEnter(event) {
+      if (event.key === "Enter") win();
+    }
 
-        for (const el of candidates) {
-          const style = window.getComputedStyle(el);
-          if (!el.disabled && style.visibility !== 'hidden' && style.display !== 'none') {
-            return el;
-          }
-        }
-        return candidates[0] || null;
-      }
-
-      function focusInput() {
-        const el = getInput();
-        if (!el) return;
-        el.focus({ preventScroll: true });
-        try { el.select && el.select(); } catch (_) {}
-      }
-
-      window.addEventListener('load', focusInput);
-      window.addEventListener('pageshow', focusInput);
-
-      document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) setTimeout(focusInput, 0);
-      });
-
-      document.addEventListener('click', function (e) {
-        const t = e.target;
-        if (!t) return;
-        const txt = (t.innerText || t.value || '').trim();
-        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset)/i.test(txt)) {
-          setTimeout(focusInput, 0);
-        }
-      });
-    })();
+    document.getElementById("input").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
   </script>
 </body>
 </html>
