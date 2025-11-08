@@ -64,9 +64,9 @@
 <body>
 
   <div class="container">
-    <h2>จับเลขใส่ 00 - 09</h2>
+    <h2>ลากเลข3ตัว 00 - 09</h2>
     <p><strong>ป้อนเลข 2ตัว(ลากมากกว่า2ชุดเว้นวรรคด้วยเช่น 12 23)</strong></p>
-    <textarea id="inputNumbers" placeholder="ตัวอย่างเช่น 12 ผลลัพธ์ที่ได้ 120 121 122 ถึง 129 "></textarea><br>
+    <textarea id="inputNumbers" placeholder="ตัวอย่างเช่น 12 ผลลัพธ์ที่ได้ 120 121 122 ถึง 129"></textarea><br>
     <button onclick="generate()" id="runButton">ลากเลข</button>
     <button onclick="reset()">เริ่มใหม่</button>
     <a href="index.html"><button class="btn-blue">กลับหน้าวินเลข</button></a>
@@ -135,34 +135,34 @@
     });
   </script>
 
-  <!-- ✅ เพิ่มเฉพาะฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
+  <!-- ✅ โฟกัสอัตโนมัติ (ไม่แย่งตอนลากเลือก/คัดลอก) -->
   <script>
     (function () {
+      function hasSelection() {
+        var sel = window.getSelection && window.getSelection();
+        return sel && sel.rangeCount > 0 && sel.toString().length > 0;
+      }
       function focusBox() {
+        if (hasSelection()) return;
         var el = document.getElementById('inputNumbers');
         if (!el) return;
         el.focus({ preventScroll: true });
         try { el.select && el.select(); } catch (_) {}
       }
 
-      // โฟกัสตอนเปิดหน้า/โหลดกลับจาก bfcache
+      // เหตุการณ์ที่ควรโฟกัสจริงๆ
       window.addEventListener('load', focusBox);
       window.addEventListener('pageshow', focusBox);
-
-      // กลับมาที่แท็บนี้ → โฟกัสทันที
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(focusBox, 0);
       });
 
-      // ถ้ากดปุ่มที่สื่อว่าเริ่มใหม่/กลับหน้า → โฟกัสกลับกล่องกรอก
-      document.addEventListener('click', function (e) {
-        var t = e.target;
-        if (!t) return;
-        var txt = (t.innerText || t.value || '').trim();
-        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset|กลับหน้าวินเลข)/i.test(txt)) {
-          setTimeout(focusBox, 0);
-        }
-      });
+      // โฟกัสเฉพาะหลังปุ่มที่ตั้งใจ (ไม่ผูก click ทั้งหน้า)
+      var resetBtn = document.querySelector('button[onclick="reset()"]');
+      if (resetBtn) resetBtn.addEventListener('click', function(){ setTimeout(focusBox, 0); });
+
+      var backBtn = document.querySelector('.btn-blue');
+      if (backBtn) backBtn.addEventListener('click', function(){ setTimeout(focusBox, 0); });
     })();
   </script>
 
