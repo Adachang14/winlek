@@ -1,135 +1,164 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>วินเลข</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>วินเลขครบวงจร</title>
   <link rel="icon" type="image/png" href="icostar.png">
   <style>
     body {
       font-family: 'Kanit', sans-serif;
-      background: #111;
-      color: #fff;
+      background-color: #def9ff;
       text-align: center;
       margin: 0;
       padding: 0;
     }
 
-    h1 {
-      margin-top: 30px;
-      font-size: 28px;
-      color: #ffcc00;
+    .container {
+      margin: 50px auto;
+      padding: 20px;
+      width: 400px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
 
-    #container {
-      margin-top: 40px;
+    h2 {
+      color: black;
     }
 
     input {
-      width: 250px;
-      height: 40px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      padding: 5px 10px;
+      width: 350px;
+      padding: 8px;
+      border: 2px solid #000;
+      border-radius: 5px;
+      font-size: 16px;
       text-align: center;
-      outline: none;
     }
 
     button {
-      height: 42px;
-      font-size: 18px;
+      background-color: #1e90ff;
       border: none;
-      border-radius: 10px;
-      padding: 5px 15px;
-      margin-left: 8px;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      margin: 10px 5px;
       cursor: pointer;
-      background: #ffcc00;
-      color: #000;
-      font-weight: bold;
-      transition: 0.2s;
     }
 
     button:hover {
-      background: #ffe066;
+      background-color: #0073e6;
     }
 
-    #result {
-      margin-top: 30px;
-      white-space: pre-line;
-      font-size: 18px;
-      color: #fff;
+    .right-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    footer {
-      margin-top: 60px;
-      font-size: 14px;
-      color: #888;
+    .right-buttons button {
+      width: 100px;
+      padding: 8px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .green-btn {
+      background-color: #00b050;
+    }
+
+    .green-btn:hover {
+      background-color: #009941;
     }
   </style>
 </head>
 <body>
-  <h1>วินเลข</h1>
-
-  <div id="container">
-    <input type="text" id="input" placeholder="กรอกเลข เช่น 12" autofocus>
-    <button onclick="generate()">ลาก</button>
-    <button onclick="clearResult()">เริ่มใหม่</button>
+  <div class="container">
+    <h2>วินเลขครบวงจร By อิอ้วน V.คนเล่ย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว</h2>
+    <input type="text" id="input" placeholder="กรอกเลข เช่น 12546" />
+    <br />
+    <button onclick="winlek()">วินเลข</button>
+    <button onclick="location.reload()">เริ่มใหม่</button>
+    <br />
+    <button onclick="clearResult()">ล้างเลข</button>
   </div>
 
-  <div id="result"></div>
-
-  <footer>© 2025 วินเลข</footer>
+  <div class="right-buttons">
+    <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
+    <button class="green-btn" onclick="window.location.href='index3.html'">รูดเลข</button>
+  </div>
 
   <script>
-    function generate() {
-      const input = document.getElementById('input').value.trim();
-      if (!input) return;
-
-      const numbers = input.split(' ');
-      let resultText = '';
-
-      numbers.forEach(num => {
-        if (num.length === 2) {
-          resultText += `เลขชุด ${num}\n`;
-          for (let i = 0; i < 10; i++) {
-            resultText += `${num}${i}\n`;
+    function winlek() {
+      const input = document.getElementById("input").value.trim();
+      if (input.length < 3) {
+        alert("กรุณาใส่เลขอย่างน้อย 3 ตัว");
+        return;
+      }
+      const nums = input.split("");
+      let results = [];
+      for (let i = 0; i < nums.length; i++) {
+        for (let j = 0; j < nums.length; j++) {
+          for (let k = 0; k < nums.length; k++) {
+            results.push(nums[i] + nums[j] + nums[k]);
           }
-          resultText += '\n';
-        } else {
-          resultText += `⚠️ ข้าม "${num}" (ต้องเป็นเลข 2 ตัว)\n\n`;
         }
-      });
-
-      document.getElementById('result').innerText = resultText.trim();
+      }
+      alert("ผลลัพธ์รวมทั้งหมด (" + results.length + " ชุด)\n\n" + results.join(" "));
     }
 
     function clearResult() {
-      document.getElementById('input').value = '';
-      document.getElementById('result').innerText = '';
-      document.getElementById('input').focus();
+      document.getElementById("input").value = "";
     }
   </script>
 
-  <!-- 🔥 เพิ่มฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ -->
+  <!-- ✅ สคริปต์เพิ่มฟังก์ชันโฟกัสช่องพิมเลขให้อัตโนมัติ (สำหรับ PC) -->
   <script>
-    function focusInput() {
-      const el = document.getElementById('input');
-      if (el) {
-        el.focus();
-        el.select(); // พร้อมพิมหรือวางเลขได้ทันที
-      }
-    }
+    (function () {
+      function getInput() {
+        const candidates = [
+          document.getElementById('input'),
+          document.querySelector('[data-winlek-input]'),
+          document.querySelector('input[type="text"]'),
+          document.querySelector('input:not([type]), input[type="search"], textarea')
+        ].filter(Boolean);
 
-    // โฟกัสตอนเปิดหน้า
-    window.addEventListener('load', focusInput);
-
-    // โฟกัสเมื่อสลับแท็บกลับมา
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        focusInput();
+        for (const el of candidates) {
+          const style = window.getComputedStyle(el);
+          if (!el.disabled && style.visibility !== 'hidden' && style.display !== 'none') {
+            return el;
+          }
+        }
+        return candidates[0] || null;
       }
-    });
+
+      function focusInput() {
+        const el = getInput();
+        if (!el) return;
+        el.focus({ preventScroll: true });
+        try { el.select && el.select(); } catch (_) {}
+      }
+
+      window.addEventListener('load', focusInput);
+      window.addEventListener('pageshow', focusInput);
+
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) setTimeout(focusInput, 0);
+      });
+
+      document.addEventListener('click', function (e) {
+        const t = e.target;
+        if (!t) return;
+        const txt = (t.innerText || t.value || '').trim();
+        if (/(เริ่มใหม่|รีเซ็ต|ล้าง|clear|reset)/i.test(txt)) {
+          setTimeout(focusInput, 0);
+        }
+      });
+    })();
   </script>
 </body>
 </html>
