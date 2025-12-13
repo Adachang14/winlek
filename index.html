@@ -298,6 +298,14 @@
       document.getElementById("results").innerHTML = "";
       allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
       document.getElementById('comboFloating').style.display = 'none';
+
+      // ✅ กดเริ่มใหม่แล้วโฟกัสกลับ + พร้อมวางทันที
+      setTimeout(() => {
+        const el = document.getElementById('input');
+        if (!el) return;
+        el.focus({ preventScroll: true });
+        try { el.select && el.select(); } catch (_) {}
+      }, 0);
     }
 
     function checkEnter(event) {
@@ -324,10 +332,10 @@
 
       function shouldSkipFocus() {
         if (now() < lockUntil) return true;
-        if (isPointerDown) return true;        // กำลังลากเมาส์อยู่ อย่าแย่งโฟกัส
-        if (hasSelection()) return true;       // มีการเลือกข้อความอยู่ อย่าเด้ง
+        if (isPointerDown) return true;
+        if (hasSelection()) return true;
+
         const ae = document.activeElement;
-        // ถ้าผู้ใช้กำลังพิมพ์/โฟกัสที่ช่องอื่นอยู่ ก็ไม่ต้องไปแย่ง
         if (ae && ae.id !== 'input' && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return true;
         return false;
       }
@@ -342,32 +350,21 @@
         }
       }
 
-      // ล็อกโฟกัสชั่วคราวเวลา user คลิก/ลากในผลลัพธ์ (กันเด้ง)
       const resultsEl = document.getElementById('results');
       if (resultsEl) {
         resultsEl.addEventListener('pointerdown', () => { lockUntil = now() + 2500; }, { passive: true });
         resultsEl.addEventListener('wheel', () => { lockUntil = now() + 2500; }, { passive: true });
       }
 
-      // track การลากเมาส์
       document.addEventListener('pointerdown', () => { isPointerDown = true; }, { passive: true });
       document.addEventListener('pointerup',   () => { isPointerDown = false; }, { passive: true });
       document.addEventListener('pointercancel', () => { isPointerDown = false; }, { passive: true });
 
-      // โฟกัสตอนเปิดหน้า / กลับมาด้วยปุ่ม Back (pageshow สำคัญมาก)
       window.addEventListener('load', () => focusInput(true));
       window.addEventListener('pageshow', () => setTimeout(() => focusInput(true), 0));
 
-      // สลับแท็บแล้วกลับมา
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(() => focusInput(true), 0);
-      });
-
-      // กดเริ่มใหม่แล้วโฟกัสกลับ (ไม่เด้งระหว่างคัดลอก)
-      const rb = document.getElementById('reset-btn');
-      if (rb) rb.addEventListener('click', function () {
-        lockUntil = now() + 300; // กันเด้งเสี้ยววิ
-        setTimeout(() => focusInput(true), 0);
       });
     })();
   </script>
