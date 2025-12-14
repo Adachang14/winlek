@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
+<head>      
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>วินเลขรวม</title>
@@ -83,13 +83,15 @@
   <h2>วินเลขรวม (วินหลายๆชุดพร้อมกัน/ผลลัพที่ได้ไม่มีตัวกลับ)</h2>
 
   <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย เช่น
-1025
-1256 8015
-8156"></textarea>
+123
+1256
+81567 
+กดENTER=เเสดงผลลัพ
+กดเว้นวรรค/Spacebar=ขึ้นบรรทัดใหม่อัตโนมัติ"></textarea>
 
   <!-- ✅ จัดตำแหน่งปุ่มใหม่ให้เหมือนรูป: วินเลขเลย / เริ่มใหม่ / คัดลอกทั้งหมด / กลับหน้าหลัก -->
   <div class="btn-row">
-    <button class="btn-run" onclick="run()">วินเลขเลย</button>
+    <button class="btn-run" onclick="run()">วินเลข</button>
     <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
     <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
     <button class="btn-back" onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
