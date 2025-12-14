@@ -51,12 +51,12 @@
     cursor:pointer;
     color:#fff;
   }
-  .btn-run{ background:#8e24aa; }
-  .btn-clear{ background:#ff5722; }
-  .btn-copy{ background:#2196f3; }
 
-  /* ✅ เพิ่มปุ่มกลับหน้าหลัก (ไม่ยุ่งส่วนอื่น) */
-  .btn-back{ background:#9e9e9e; }
+  /* ✅ สีปุ่มให้เหมือนตัวอย่าง */
+  .btn-run{ background:#4CAF50; }     /* วินเลขเลย (เขียว) */
+  .btn-clear{ background:#ff5722; }   /* เริ่มใหม่ (ส้ม) */
+  .btn-copy{ background:#2196f3; }    /* คัดลอกทั้งหมด (ฟ้า) */
+  .btn-back{ background:#9e9e9e; }    /* กลับหน้าหลัก (เทา) */
 
   .result{
     margin-top:18px;
@@ -87,11 +87,12 @@
 1256 8015
 8156"></textarea>
 
+  <!-- ✅ จัดตำแหน่งปุ่มใหม่ให้เหมือนรูป: วินเลขเลย / เริ่มใหม่ / คัดลอกทั้งหมด / กลับหน้าหลัก -->
   <div class="btn-row">
-    <button class="btn-back" onclick="window.location.href='index.html'">← กลับหน้าหลัก</button>
-    <button class="btn-run" onclick="run()">วินเลขรวม</button>
+    <button class="btn-run" onclick="run()">วินเลขเลย</button>
     <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
     <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
+    <button class="btn-back" onclick="window.location.href='index.html'">กลับหน้าหลัก</button>
   </div>
 
   <div id="copied" class="copied-msg">คัดลอกแล้ว!</div>
@@ -222,7 +223,6 @@
   });
 
   // ✅ “เหมือนโค้ดเก่า”: วาง/พิมพ์แล้วให้ล้างตัวหนังสือทันที
-  // หลักการ: เก็บแต่เลข และแปลงตัวคั่นทั้งหมดเป็นขึ้นบรรทัดใหม่
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
     const after = before.replace(/[^\d]+/g, '\n'); // อะไรไม่ใช่เลข = newline
