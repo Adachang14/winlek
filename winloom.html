@@ -1,1 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>วินเลขรวม</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+  body{
+    font-family:'Sarabun',sans-serif;
+    background:#f3e5f5;
+    padding:20px;
+    text-align:center;
+  }
+  .box{
+    max-width:650px;
+    margin:auto;
+    background:#fff;
+    padding:22px;
+    border-radius:18px;
+    box-shadow:0 8px 22px rgba(0,0,0,.15);
+  }
+  h2{ color:#8e24aa; margin:0 0 14px; }
+
+  textarea{
+    width:100%;
+    height:250px;
+    font-size:16px;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    outline:none;
+    resize: vertical;
+  }
+
+  .btn-row{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
+  button{
+    padding:10px 22px;
+    font-size:16px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:#fff;
+  }
+  .btn-run{ background:#8e24aa; }
+  .btn-clear{ background:#ff5722; }
+  .btn-copy{ background:#2196f3; }
+
+  .result{
+    margin-top:18px;
+    text-align:left;
+    background:#f8eafc;
+    padding:16px;
+    border-radius:14px;
+    white-space:pre-wrap;
+    word-break:break-word;
+    line-height:1.45;
+  }
+
+  .copied-msg{
+    display:none;
+    margin-top:10px;
+    color:green;
+    font-weight:800;
+  }
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h2>วินเลขรวม (วินหลายๆชุดพร้อมกัน/ผลลัพที่ได้ไม่มีตัวกลับ)</h2>
+
+  <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย เช่น
+1025
+1256 8015
+8156"></textarea>
+
+  <div class="btn-row">
+    <button class="btn-run" onclick="run()">วินเลขรวม</button>
+    <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
+    <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
+  </div>
+
+  <div id="copied" class="copied-msg">คัดลอกแล้ว!</div>
+  <div id="output" class="result"></div>
+</div>
+
+<script>
+  const MIN_LEN = 3; // ✅ กันชุดผิด: ต้องอย่างน้อย 3 ตัว
+
+  function toThaiNumber(n){
+    const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+    return n.toString().split('').map(d => th[+d] ?? d).join('');
+  }
+
+  function hasDuplicates(str){
+    return /(.).*\1/.test(str);
+  }
+
+  // ✅ แปลง raw → ชุดเลข: ทุกอย่างที่ไม่ใช่เลข = ตัวคั่นเป็นบรรทัดใหม่
+  function normalizeToSets(raw){
+    const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
+    if(!cleaned) return [];
+    return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  function buildPairs(num){
+    const set = new Set();
+    for(let i=0;i<num.length;i++){
+      for(let j=i+1;j<num.length;j++){
+        set.add(num[i] + num[j]);
+      }
+    }
+    return Array.from(set);
+  }
+
+  // ✅ ตรวจชุดผิด: ถ้ามี 1–2 หลัก ให้แจ้งเตือนและไม่ทำผลลัพธ์
+  function validateSets(sets){
+    let realIndex = 0;
+    const bad = []; // เก็บรายการชุดที่ผิด (ตำแหน่งจริง + ค่าที่พิมพ์)
+
+    for (let i=0;i<sets.length;i++){
+      const num = sets[i];
+      if(!num) continue;
+      realIndex++;
+
+      // กันชุดสั้น 1–2 หลัก
+      if(num.length < MIN_LEN){
+        bad.push(`ชุดที่${toThaiNumber(realIndex)} (${num})`);
+        continue;
+      }
+
+      // กันเลขซ้ำ (เหมือนอันเก่า)
+      if(hasDuplicates(num)){
+        alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")");
+        return { ok:false };
+      }
+    }
+
+    if(bad.length){
+      alert("❗️มีชุดที่ผิด (ต้องอย่างน้อย 3 ตัว)\n" + bad.join("\n") + "\n\nแก้ให้ครบก่อนนะ แล้วค่อยวินใหม่");
+      return { ok:false };
+    }
+
+    return { ok:true };
+  }
+
+  function run(){
+    const raw = document.getElementById("input").value;
+    const sets = normalizeToSets(raw);
+
+    if(sets.length === 0){
+      document.getElementById("output").textContent = "กรุณาพิมพ์เลขอย่างน้อย 3 ตัวต่อชุด";
+      document.getElementById("copied").style.display = "none";
+      return;
+    }
+
+    // ✅ ถ้ามีชุดผิด/ซ้ำ → ไม่ต้องแสดงผลลัพธ์เลย
+    const v = validateSets(sets);
+    if(!v.ok){
+      document.getElementById("output").textContent = "";
+      document.getElementById("copied").style.display = "none";
+      return;
+    }
+
+    // ✅ ทำผลลัพธ์: นับชุดจริง
+    let out = "";
+    let count = 0;
+
+    sets.forEach((num) => {
+      if(!num) return;
+      if(num.length < MIN_LEN) return; // (กันเผื่อ)
+      count++;
+
+      const pairs = buildPairs(num);
+
+      out += `ชุดที่${toThaiNumber(count)}\n`;
+      out += pairs.join(" ") + "\n\n";
+    });
+
+    document.getElementById("output").textContent = out.trim();
+    document.getElementById("copied").style.display = "none";
+  }
+
+  function resetAll(){
+    document.getElementById("input").value = "";
+    document.getElementById("output").textContent = "";
+    document.getElementById("copied").style.display = "none";
+    setTimeout(() => focusInput(), 0);
+  }
+
+  function copyAll(){
+    const text = document.getElementById("output").textContent.trim();
+    if(!text) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+      const msg = document.getElementById("copied");
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 1500);
+    });
+  }
+
+  // ✅ Enter = วินเลขรวม (Shift+Enter ยังขึ้นบรรทัดใหม่ได้)
+  document.getElementById("input").addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      run();
+    }
+  });
+
+  // ✅ “เหมือนโค้ดเก่า”: วาง/พิมพ์แล้วให้ล้างตัวหนังสือทันที
+  // หลักการ: เก็บแต่เลข และแปลงตัวคั่นทั้งหมดเป็นขึ้นบรรทัดใหม่
+  document.getElementById("input").addEventListener("input", function(){
+    const before = this.value;
+    const after = before.replace(/[^\d]+/g, '\n'); // อะไรไม่ใช่เลข = newline
+    if(before !== after) this.value = after;
+  });
+
+  // โฟกัสอัตโนมัติ
+  function focusInput(){
+    const el = document.getElementById("input");
+    if(!el) return;
+    el.focus({preventScroll:true});
+  }
+  window.addEventListener("load", focusInput);
+  window.addEventListener("pageshow", focusInput);
+</script>
+</body>
+</html> 
