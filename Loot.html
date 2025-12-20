@@ -87,10 +87,10 @@
     function parseInput(input) {
       input = input.toLowerCase()
         .replace(/ร/g, '')
-        .replace(/[^\d]+/g, ' ') // แทนทุกตัวไม่ใช่เลขด้วยช่องว่าง
+        .replace(/[^\d]+/g, ' ')
         .trim();
 
-      let parts = input.split(/\s+/); // แยกด้วยช่องว่างทั้งหมด
+      let parts = input.split(/\s+/);
       let nums = [];
 
       parts.forEach(part => {
@@ -114,7 +114,7 @@
           result.push(i + num);
         }
       }
-      return [...new Set(result)]; // เอาเลขซ้ำออก
+      return [...new Set(result)];
     }
 
     function toThaiNumber(n) {
@@ -144,11 +144,26 @@
       resultsDiv.textContent = resultText.trim();
     }
 
+    /* =========================
+       ✅ แก้ตรงนี้จุดเดียว
+       คัดลอกเฉพาะ "เลขผลลัพธ์"
+       ========================= */
     function copyAll() {
       const text = document.getElementById("results").textContent;
       if (!text) return;
 
-      navigator.clipboard.writeText(text).then(() => {
+      const onlyNumbers = text
+        .split('\n')
+        .map(line => {
+          const idx = line.indexOf(':');
+          return idx !== -1 ? line.slice(idx + 1).trim() : '';
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      if (!onlyNumbers) return;
+
+      navigator.clipboard.writeText(onlyNumbers).then(() => {
         const copyBtn = document.querySelector('.btn-copy');
         copyBtn.textContent = 'คัดลอกแล้ว!';
         setTimeout(() => copyBtn.textContent = 'คัดลอกทั้งหมด', 2000);
@@ -171,7 +186,7 @@
     }
   </script>
 
-  <!-- ✅ โฟกัสอัตโนมัติ (ไม่แย่งตอนลากเลือก/คัดลอก) -->
+  <!-- ✅ โฟกัสอัตโนมัติ (ไม่แตะ) -->
   <script>
     (function () {
       function hasSelection() {
@@ -186,14 +201,12 @@
         try { el.select && el.select(); } catch (_) {}
       }
 
-      // เหตุการณ์ที่ควรโฟกัสจริงๆ
       window.addEventListener('load', focusInput);
       window.addEventListener('pageshow', focusInput);
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(focusInput, 0);
       });
 
-      // โฟกัสเฉพาะหลังปุ่มที่ตั้งใจ (ไม่ผูก click ทั้งหน้า)
       var resetBtn = document.querySelector('.btn-clear');
       if (resetBtn) resetBtn.addEventListener('click', function(){ setTimeout(focusInput, 0); });
 
