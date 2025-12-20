@@ -54,6 +54,7 @@
   .btn-run{ background:#8e24aa; }
   .btn-clear{ background:#ff5722; }
   .btn-copy{ background:#2196f3; }
+  .btn-home{ background:#607d8b; }
 
   .result{
     margin-top:18px;
@@ -88,6 +89,7 @@
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
     <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
     <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
+    <button class="btn-home" onclick="goHome()">กลับหน้าหลัก</button>
   </div>
 
   <div id="copied" class="copied-msg">คัดลอกแล้ว!</div>
@@ -95,7 +97,7 @@
 </div>
 
 <script>
-  const MIN_LEN = 3; // ✅ กันชุดผิด: ต้องอย่างน้อย 3 ตัว
+  const MIN_LEN = 3;
 
   function toThaiNumber(n){
     const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
@@ -106,7 +108,6 @@
     return /(.).*\1/.test(str);
   }
 
-  // ✅ แปลง raw → ชุดเลข: ทุกอย่างที่ไม่ใช่เลข = ตัวคั่นเป็นบรรทัดใหม่
   function normalizeToSets(raw){
     const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
     if(!cleaned) return [];
@@ -123,23 +124,20 @@
     return Array.from(set);
   }
 
-  // ✅ ตรวจชุดผิด: ถ้ามี 1–2 หลัก ให้แจ้งเตือนและไม่ทำผลลัพธ์
   function validateSets(sets){
     let realIndex = 0;
-    const bad = []; // เก็บรายการชุดที่ผิด (ตำแหน่งจริง + ค่าที่พิมพ์)
+    const bad = [];
 
     for (let i=0;i<sets.length;i++){
       const num = sets[i];
       if(!num) continue;
       realIndex++;
 
-      // กันชุดสั้น 1–2 หลัก
       if(num.length < MIN_LEN){
         bad.push(`ชุดที่${toThaiNumber(realIndex)} (${num})`);
         continue;
       }
 
-      // กันเลขซ้ำ (เหมือนอันเก่า)
       if(hasDuplicates(num)){
         alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")");
         return { ok:false };
@@ -164,7 +162,6 @@
       return;
     }
 
-    // ✅ ถ้ามีชุดผิด/ซ้ำ → ไม่ต้องแสดงผลลัพธ์เลย
     const v = validateSets(sets);
     if(!v.ok){
       document.getElementById("output").textContent = "";
@@ -172,17 +169,14 @@
       return;
     }
 
-    // ✅ ทำผลลัพธ์: นับชุดจริง
     let out = "";
     let count = 0;
 
     sets.forEach((num) => {
-      if(!num) return;
-      if(num.length < MIN_LEN) return; // (กันเผื่อ)
+      if(!num || num.length < MIN_LEN) return;
       count++;
 
       const pairs = buildPairs(num);
-
       out += `ชุดที่${toThaiNumber(count)}\n`;
       out += pairs.join(" ") + "\n\n";
     });
@@ -202,9 +196,8 @@
     const raw = document.getElementById("output").textContent;
     if(!raw.trim()) return;
 
-    // ✅ คัดลอกเฉพาะเลขผลลัพธ์ (ไม่เอาบรรทัด "ชุดที่๑")
     let onlyNumbers = raw
-      .replace(/^[\s\uFEFF\u200B]*ชุดที่.*$/gm, "") // ลบทั้งบรรทัดที่เป็น "ชุดที่..."
+      .replace(/^[\s\uFEFF\u200B]*ชุดที่.*$/gm, "")
       .replace(/\n{3,}/g, "\n\n")
       .trim();
 
@@ -217,7 +210,10 @@
     });
   }
 
-  // ✅ Enter = วินเลขรวม (Shift+Enter ยังขึ้นบรรทัดใหม่ได้)
+  function goHome(){
+    window.location.href = "index.html"; // 🔁 แก้ชื่อไฟล์ถ้าหน้าหลักใช้ชื่ออื่น
+  }
+
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
@@ -225,19 +221,15 @@
     }
   });
 
-  // ✅ “เหมือนโค้ดเก่า”: วาง/พิมพ์แล้วให้ล้างตัวหนังสือทันที
-  // หลักการ: เก็บแต่เลข และแปลงตัวคั่นทั้งหมดเป็นขึ้นบรรทัดใหม่
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
-    const after = before.replace(/[^\d]+/g, '\n'); // อะไรไม่ใช่เลข = newline
+    const after = before.replace(/[^\d]+/g, '\n');
     if(before !== after) this.value = after;
   });
 
-  // โฟกัสอัตโนมัติ
   function focusInput(){
     const el = document.getElementById("input");
-    if(!el) return;
-    el.focus({preventScroll:true});
+    if(el) el.focus({preventScroll:true});
   }
   window.addEventListener("load", focusInput);
   window.addEventListener("pageshow", focusInput);
