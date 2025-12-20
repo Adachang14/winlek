@@ -203,12 +203,9 @@
     if(!raw.trim()) return;
 
     // ✅ คัดลอกเฉพาะเลขผลลัพธ์ (ไม่เอาบรรทัด "ชุดที่๑")
-    const onlyNumbers = raw
-      .split('\n')
-      .map(l => l.trim())
-      .filter(l => l && !l.startsWith('ชุดที่'))   // ตัด "ชุดที่..."
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n')
+    let onlyNumbers = raw
+      .replace(/^[\s\uFEFF\u200B]*ชุดที่.*$/gm, "") // ลบทั้งบรรทัดที่เป็น "ชุดที่..."
+      .replace(/\n{3,}/g, "\n\n")
       .trim();
 
     if(!onlyNumbers) return;
