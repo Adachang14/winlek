@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>วินเลขรวม</title>
+<title>วินเลขรวม (2ตัว+3ตัว)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
 
@@ -35,26 +35,44 @@
     resize: vertical;
   }
 
+  /* แถวปุ่มหลัก */
   .btn-row{
     margin-top:14px;
     display:flex;
-    gap:10px;
+    gap:8px;
     justify-content:center;
     flex-wrap:wrap;
   }
+  
+  /* แถวปุ่มเพิ่มเติม (Copy แยก) */
+  .btn-row-sub{
+    margin-top:10px;
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
+  }
 
   button{
-    padding:10px 22px;
-    font-size:16px;
+    padding:10px 18px;
+    font-size:15px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     cursor:pointer;
     color:#fff;
+    font-weight: bold;
   }
-  .btn-run{ background:#8e24aa; }
-  .btn-clear{ background:#ff5722; }
-  .btn-copy{ background:#2196f3; }
-  .btn-home{ background:#607d8b; }
+  
+  /* สีปุ่มต่างๆ */
+  .btn-run{ background:#8e24aa; } /* ม่วง */
+  .btn-clear{ background:#ff5722; } /* ส้ม */
+  .btn-copy-all{ background:#2196f3; } /* ฟ้า */
+  .btn-home{ background:#607d8b; } /* เทา */
+  
+  .btn-copy-2{ background:#00897b; } /* เขียวเข้ม */
+  .btn-copy-3{ background:#d81b60; } /* ชมพูเข้ม */
 
   .result{
     margin-top:18px;
@@ -64,7 +82,8 @@
     border-radius:14px;
     white-space:pre-wrap;
     word-break:break-word;
-    line-height:1.45;
+    line-height:1.6;
+    font-size: 16px;
   }
 
   .copied-msg{
@@ -78,18 +97,22 @@
 
 <body>
 <div class="box">
-  <h2>วินเลขรวม (วินหลายๆชุดพร้อมกัน/ผลลัพที่ได้ไม่มีตัวกลับ)</h2>
+  <h2>วินเลขรวม (ออกทั้ง 2 และ 3 ตัว)</h2>
 
   <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย เช่น
-1025
-1256 8015
-8156"></textarea>
+123
+4567"></textarea>
 
   <div class="btn-row">
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
     <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
-    <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
+    <button class="btn-copy-all" onclick="copyAllMixed()">คัดลอกทั้งหมด</button>
     <button class="btn-home" onclick="goHome()">กลับหน้าหลัก</button>
+  </div>
+
+  <div class="btn-row-sub">
+    <button class="btn-copy-2" onclick="copyOnlyDigit(2)">คัดลอกเฉพาะ 2 ตัว</button>
+    <button class="btn-copy-3" onclick="copyOnlyDigit(3)">คัดลอกเฉพาะ 3 ตัว</button>
   </div>
 
   <div id="copied" class="copied-msg">คัดลอกแล้ว!</div>
@@ -98,6 +121,7 @@
 
 <script>
   const MIN_LEN = 3;
+  let globalResults = []; // ตัวแปรเก็บผลลัพธ์เพื่อใช้ตอนแยกก๊อปปี้
 
   function toThaiNumber(n){
     const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
@@ -114,14 +138,20 @@
     return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
   }
 
-  function buildPairs(num){
-    const set = new Set();
-    for(let i=0;i<num.length;i++){
-      for(let j=i+1;j<num.length;j++){
-        set.add(num[i] + num[j]);
+  // สูตรวิน (Combination)
+  function getCombinations(chars, size) {
+    let result = [];
+    const combine = (current, start) => {
+      if (current.length === size) {
+        result.push(current.join(''));
+        return;
       }
-    }
-    return Array.from(set);
+      for (let i = start; i < chars.length; i++) {
+        combine([...current, chars[i]], i + 1);
+      }
+    };
+    combine([], 0);
+    return result;
   }
 
   function validateSets(sets){
@@ -165,20 +195,33 @@
     const v = validateSets(sets);
     if(!v.ok){
       document.getElementById("output").textContent = "";
-      document.getElementById("copied").style.display = "none";
       return;
     }
 
     let out = "";
     let count = 0;
+    globalResults = []; // ล้างค่าเก่า
 
     sets.forEach((num) => {
-      if(!num || num.length < MIN_LEN) return;
       count++;
+      const digits = num.split('');
+      
+      // คำนวณ 2 ตัว
+      const pairs = getCombinations(digits, 2);
+      // คำนวณ 3 ตัว
+      const triplets = getCombinations(digits, 3);
 
-      const pairs = buildPairs(num);
+      // เก็บข้อมูลไว้ใช้ตอนกดปุ่มแยก
+      globalResults.push({
+        id: count,
+        pairs: pairs,
+        triplets: triplets
+      });
+
+      // แสดงผลหน้าจอ
       out += `ชุดที่${toThaiNumber(count)}\n`;
-      out += pairs.join(" ") + "\n\n";
+      out += pairs.join(" ") + "\n";   // บรรทัด 2 ตัว
+      out += triplets.join(" ") + "\n\n"; // บรรทัด 3 ตัว
     });
 
     document.getElementById("output").textContent = out.trim();
@@ -189,31 +232,60 @@
     document.getElementById("input").value = "";
     document.getElementById("output").textContent = "";
     document.getElementById("copied").style.display = "none";
-    setTimeout(() => focusInput(), 0);
+    globalResults = [];
+    setTimeout(() => {
+        const el = document.getElementById("input");
+        if(el) el.focus();
+    }, 0);
   }
 
-  function copyAll(){
+  // ก๊อปปี้ทั้งหมด (เหมือนที่ตาเห็นหน้าจอ)
+  function copyAllMixed(){
     const raw = document.getElementById("output").textContent;
     if(!raw.trim()) return;
+    
+    // ตัดคำว่าชุดที่ออก เพื่อให้เอาไปวางง่ายๆ (หรือถ้าอยากได้คำว่าชุดที่ด้วย ให้ลบบรรทัด replace ออกครับ)
+    const cleanText = raw.replace(/^ชุดที่.*$/gm, "").replace(/^\s*[\r\n]/gm, ""); 
 
-    let onlyNumbers = raw
-      .replace(/^[\s\uFEFF\u200B]*ชุดที่.*$/gm, "")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim();
+    copyToClipboard(cleanText, "คัดลอกทั้งหมดแล้ว!");
+  }
 
-    if(!onlyNumbers) return;
+  // ก๊อปปี้แยกตามจำนวนตัว (2 หรือ 3)
+  function copyOnlyDigit(digits){
+    if(globalResults.length === 0) return;
 
-    navigator.clipboard.writeText(onlyNumbers).then(() => {
+    let textToCopy = "";
+    
+    globalResults.forEach(item => {
+        if(digits === 2 && item.pairs.length > 0) {
+            textToCopy += item.pairs.join(" ") + " ";
+        } else if(digits === 3 && item.triplets.length > 0) {
+            textToCopy += item.triplets.join(" ") + " ";
+        }
+    });
+
+    if(!textToCopy.trim()) {
+        alert("ไม่มีเลข " + digits + " ตัว ให้คัดลอก");
+        return;
+      }
+
+    copyToClipboard(textToCopy.trim(), `คัดลอกเฉพาะ ${digits} ตัวแล้ว!`);
+  }
+
+  function copyToClipboard(text, alertMsg){
+    navigator.clipboard.writeText(text).then(() => {
       const msg = document.getElementById("copied");
+      msg.textContent = alertMsg;
       msg.style.display = "block";
       setTimeout(() => msg.style.display = "none", 1500);
     });
   }
 
   function goHome(){
-    window.location.href = "index.html"; // 🔁 แก้ชื่อไฟล์ถ้าหน้าหลักใช้ชื่ออื่น
+    window.location.href = "index.html"; 
   }
 
+  // กด Enter เพื่อวินทันที
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
@@ -221,18 +293,14 @@
     }
   });
 
+  // แปลง input ให้ขึ้นบรรทัดใหม่เมื่อเจอตัวอักษรที่ไม่ใช่ตัวเลข
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
     const after = before.replace(/[^\d]+/g, '\n');
     if(before !== after) this.value = after;
   });
 
-  function focusInput(){
-    const el = document.getElementById("input");
-    if(el) el.focus({preventScroll:true});
-  }
-  window.addEventListener("load", focusInput);
-  window.addEventListener("pageshow", focusInput);
+  window.addEventListener("load", () => document.getElementById("input").focus());
 </script>
 </body>
 </html>
