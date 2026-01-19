@@ -27,17 +27,12 @@
   textarea{
     width:100%;
     height:250px;
-    font-size:18px; /* ตัวใหญ่ขึ้นหน่อยจะได้เห็นชัด */
+    font-size:16px;
     padding:12px;
     border-radius:12px;
     border:1px solid #ddd;
     outline:none;
     resize: vertical;
-  }
-  /* เวลาโฟกัส ให้กรอบเป็นสีสวยๆ */
-  textarea:focus {
-    border-color: #8e24aa;
-    box-shadow: 0 0 8px rgba(142, 36, 170, 0.2);
   }
 
   /* แถวปุ่มหลัก */
@@ -68,9 +63,7 @@
     cursor:pointer;
     color:#fff;
     font-weight: bold;
-    transition: transform 0.1s;
   }
-  button:active { transform: scale(0.95); }
   
   /* สีปุ่มต่างๆ */
   .btn-run{ background:#8e24aa; } /* ม่วง */
@@ -128,7 +121,7 @@
 
 <script>
   const MIN_LEN = 3;
-  let globalResults = []; // เก็บผลลัพธ์แยกชุด
+  let globalResults = []; // ตัวแปรเก็บผลลัพธ์เพื่อใช้ตอนแยกก๊อปปี้
 
   function toThaiNumber(n){
     const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
@@ -145,7 +138,7 @@
     return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
   }
 
-  // สูตรวินเลข (Combination)
+  // สูตรวิน (Combination)
   function getCombinations(chars, size) {
     let result = [];
     const combine = (current, start) => {
@@ -213,18 +206,19 @@
       count++;
       const digits = num.split('');
       
-      // คำนวณ
+      // คำนวณ 2 ตัว
       const pairs = getCombinations(digits, 2);
+      // คำนวณ 3 ตัว
       const triplets = getCombinations(digits, 3);
 
-      // เก็บไว้กดปุ่มแยก
+      // เก็บข้อมูลไว้ใช้ตอนกดปุ่มแยก
       globalResults.push({
         id: count,
         pairs: pairs,
         triplets: triplets
       });
 
-      // แสดงผล
+      // แสดงผลหน้าจอ
       out += `ชุดที่${toThaiNumber(count)}\n`;
       out += pairs.join(" ") + "\n";   // บรรทัด 2 ตัว
       out += triplets.join(" ") + "\n\n"; // บรรทัด 3 ตัว
@@ -239,20 +233,20 @@
     document.getElementById("output").textContent = "";
     document.getElementById("copied").style.display = "none";
     globalResults = [];
-    
-    // เรียกใช้ฟังก์ชัน focusInput เพื่อโฟกัสและคลุมดำทันที
     setTimeout(() => {
-        focusInput(true);
+        const el = document.getElementById("input");
+        if(el) el.focus();
     }, 0);
   }
 
-  // ก๊อปปี้ทั้งหมด (เหมือนที่ตาเห็น)
+  // ก๊อปปี้ทั้งหมด (เหมือนที่ตาเห็นหน้าจอ)
   function copyAllMixed(){
     const raw = document.getElementById("output").textContent;
     if(!raw.trim()) return;
     
-    // ตัดคำว่าชุดที่ออก (ถ้าต้องการ)
+    // ตัดคำว่าชุดที่ออก เพื่อให้เอาไปวางง่ายๆ (หรือถ้าอยากได้คำว่าชุดที่ด้วย ให้ลบบรรทัด replace ออกครับ)
     const cleanText = raw.replace(/^ชุดที่.*$/gm, "").replace(/^\s*[\r\n]/gm, ""); 
+
     copyToClipboard(cleanText, "คัดลอกทั้งหมดแล้ว!");
   }
 
@@ -291,62 +285,22 @@
     window.location.href = "index.html"; 
   }
 
-  // แปลง input ให้ขึ้นบรรทัดใหม่เมื่อเจอตัวที่ไม่ใช่ตัวเลข
+  // กด Enter เพื่อวินทันที
+  document.getElementById("input").addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      run();
+    }
+  });
+
+  // แปลง input ให้ขึ้นบรรทัดใหม่เมื่อเจอตัวอักษรที่ไม่ใช่ตัวเลข
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
     const after = before.replace(/[^\d]+/g, '\n');
     if(before !== after) this.value = after;
   });
 
-  // -----------------------------------------------------------
-  // ✅ ส่วนของ Smart Auto Focus (เหมือนหน้าหลัก 100%)
-  // -----------------------------------------------------------
-  let lockUntil = 0;
-  let isPointerDown = false;
-
-  function now() { return Date.now(); }
-
-  function hasSelection() {
-    const sel = window.getSelection && window.getSelection();
-    return sel && sel.rangeCount > 0 && sel.toString().length > 0;
-  }
-
-  function shouldSkipFocus() {
-    if (now() < lockUntil) return true;
-    if (isPointerDown) return true;
-    if (hasSelection()) return true;
-
-    const ae = document.activeElement;
-    if (ae && ae.id === 'input') return true;
-    return false;
-  }
-
-  function focusInput(selectAll = true) {
-    if (shouldSkipFocus()) return;
-    const el = document.getElementById('input');
-    if (!el) return;
-    el.focus({ preventScroll: true });
-    if (selectAll) {
-      try { el.select(); } catch (_) {}
-    }
-  }
-
-  const resultsEl = document.getElementById('output');
-  if (resultsEl) {
-    resultsEl.addEventListener('pointerdown', () => { lockUntil = now() + 2500; }, { passive: true });
-    resultsEl.addEventListener('wheel', () => { lockUntil = now() + 2500; }, { passive: true });
-  }
-
-  document.addEventListener('pointerdown', () => { isPointerDown = true; }, { passive: true });
-  document.addEventListener('pointerup',   () => { isPointerDown = false; }, { passive: true });
-  document.addEventListener('pointercancel', () => { isPointerDown = false; }, { passive: true });
-
-  window.addEventListener('load', () => focusInput(true));
-  window.addEventListener('pageshow', () => setTimeout(() => focusInput(true), 0));
-
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) setTimeout(() => focusInput(true), 0);
-  });
+  window.addEventListener("load", () => document.getElementById("input").focus());
 </script>
 </body>
 </html>
