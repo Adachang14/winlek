@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>วินเลข</title>
   <link rel="icon" type="image/png" href="icostar.png">
-  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5QWYMLXEDM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -67,7 +66,6 @@
       cursor: pointer;
     }
 
-    /* ✅ ปุ่มวินรวม (ใหญ่กว่าปุ่มรูดยาว) */
     .winloom-button {
       font-size: 14px;
       padding: 10px 14px;
@@ -101,44 +99,73 @@
       font-weight: bold;
     }
 
-    /* ===== ปุ่มลอยขวา (เหลือปุ่มเดียว: 2/3ตัวพี่แคท) ===== */
+    /* ปุ่มลอยขวา */
     .combo-floating {
       position: fixed;
       right: 20px;
       top: 50%;
       transform: translateY(-50%);
-      display: none;           /* โชว์เมื่อวินเลขแล้ว */
+      display: none;
       flex-direction: column;
       align-items: flex-end;
       gap: 8px;
       z-index: 9999;
     }
     .combo-floating .kat-btn {
-      font-size: 15px;         /* ใหญ่ขึ้น */
-      padding: 10px 16px;      /* ใหญ่ขึ้น */
-      background-color: #007bff; /* สีเดียวกับปุ่มคัดลอก */
+      font-size: 15px;
+      padding: 10px 16px;
+      background-color: #007bff;
       border-radius: 10px;
     }
-    .combo-floating .copied-msg {
-      font-size: 12px;
-      margin: 0 0 8px 0;
-      color: green;
-      font-weight: bold;
-      display: none;
+
+    /* ============ MODAL (แจ้งเตือน) สไตล์ใหม่ ============ */
+    .modal-overlay {
+      display: none; /* ซ่อนก่อน */
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6); /* ฉากหลังมืด */
+      backdrop-filter: blur(2px);
     }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 25px;
+      border: 3px solid #ff5722; /* ขอบสีส้มเตือน */
+      border-radius: 15px;
+      width: 80%;
+      max-width: 350px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease-out;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-msg {
+      font-size: 18px;
+      font-weight: bold;
+      color: #d32f2f;
+      margin-bottom: 20px;
+    }
+    .modal-actions button {
+      width: 100%;
+      margin: 5px 0;
+    }
+    .btn-copy-error { background-color: #2196F3; }
+    .btn-close-error { background-color: #757575; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- ปุ่มลอยขวาบน -->
     <div class="top-right">
       <button onclick="window.location.href='index2.html'">ชุดเลขต่างๆ</button>
       <button class="mini-button" onclick="window.location.href='Loot.html'">รูดยาว</button>
-
-      <!-- ✅ เพิ่มปุ่มวินรวม (เปิดแท็บใหม่) -->
-      <button class="winloom-button"onclick="window.location.href='winloom.html'">
-  วินรวม
-</button>
+      <button class="winloom-button" onclick="window.location.href='winloom.html'">วินรวม</button>
     </div>
 
     <h3>วินเลขครบวงจร By อิอ้วน V.คนคีย์<br>ป้อนเลขที่ต้องการ อย่างน้อย 3 ตัว</h3>
@@ -154,22 +181,27 @@
     <div id="results"></div>
   </div>
 
-  <!-- ปุ่มลอยขวา: คัดลอก 2/3ตัวพี่แคท -->
   <div id="comboFloating" class="combo-floating">
     <button class="kat-btn" onclick="copyCombo()">2/3ตัวพี่แคท</button>
-    <span id="copied-mix" class="copied-msg">คัดลอกแล้ว!</span>
+    <span id="copied-mix" class="copied-msg" style="display:none; color: white; background: green; padding: 2px 5px; border-radius: 4px;">คัดลอกแล้ว!</span>
+  </div>
+
+  <div id="errorModal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="errorMsg" class="modal-msg">ข้อความแจ้งเตือน</div>
+      <div class="modal-actions">
+        <button class="btn-copy-error" onclick="copyErrorMsg()">คัดลอกข้อความ</button>
+        <button class="btn-close-error" onclick="closeModal()">ปิด</button>
+      </div>
+      <span id="copy-success" style="color: green; font-size: 14px; display: none;">คัดลอกแล้ว!</span>
+    </div>
   </div>
 
   <script>
-    let allResults = {
-      win2NoDup: [],
-      win3NoDup: [],
-      win3WithDup: []
-    };
+    let allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
 
-    function hasDuplicates(str) {
-      return /(.).*\1/.test(str);
-    }
+    // --- Logic เดิม ---
+    function hasDuplicates(str) { return /(.).*\1/.test(str); }
 
     function getUniqueCombinations(arr, size, allowDuplicates = false) {
       let result = [];
@@ -188,9 +220,7 @@
     function getAllPairsWithDupes(arr) {
       let pairs = [];
       for (let i = 0; i < arr.length; i++) {
-        for (let j = i; j < arr.length; j++) {
-          pairs.push(arr[i] + arr[j]);
-        }
+        for (let j = i; j < arr.length; j++) pairs.push(arr[i] + arr[j]);
       }
       return pairs;
     }
@@ -199,9 +229,7 @@
       let results = [];
       for (let i = 0; i < arr.length; i++) {
         for (let j = i; j < arr.length; j++) {
-          for (let k = j; k < arr.length; k++) {
-            results.push(arr[i] + arr[j] + arr[k]);
-          }
+          for (let k = j; k < arr.length; k++) results.push(arr[i] + arr[j] + arr[k]);
         }
       }
       return results;
@@ -212,24 +240,39 @@
       return num.toString().split('').map(d => thaiDigits[d]).join('');
     }
 
+    // --- Main Function (Updated) ---
     function win() {
       let input = document.getElementById("input").value.trim();
       input = input.replace(/\D/g, '');
       const digits = input.split("");
 
-      if (input.length < 3 || digits.length > 10) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว และไม่เกิน 7 ตัว");
-        return;
-      }
-      if (hasDuplicates(input)) {
-        alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
-        return;
-      }
-      if (input.length > 7) {
-        alert("วินได้ไม่เกิน 7ตัว เเจ้งลค.ว่า= วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
+      // 1. เช็กความยาวขั้นต่ำ
+      if (input.length < 3) {
+        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว");
         return;
       }
 
+      // 2. เช็กเงื่อนไขพิเศษ (ซ้ำ / เกิน)
+      const isDuplicate = hasDuplicates(input);
+      const isTooLong = input.length > 7;
+
+      // กรณีที่ 1: ทั้งซ้ำ และ เกิน 7 ตัว
+      if (isDuplicate && isTooLong) {
+        showError("เลขซ้ำและวินได้ไม่เกิน7ตัวจ้าแอดขอโพยใหม่จ้า");
+        return;
+      }
+      // กรณีที่ 2: เลขซ้ำอย่างเดียว
+      if (isDuplicate) {
+        showError("เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
+        return;
+      }
+      // กรณีที่ 3: เกิน 7 ตัวอย่างเดียว
+      if (isTooLong) {
+        showError("วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
+        return;
+      }
+
+      // --- ถ้าผ่านทุกเงื่อนไข ก็คำนวณตามปกติ ---
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
@@ -237,22 +280,18 @@
         </div>
       `;
 
-      // 3 ตัวไม่รวมเบิ้ล
       const win3NoDup = getUniqueCombinations(digits, 3, false);
       addResult("เลข 3 ตัว ไม่รวมเบิ้ล", win3NoDup);
       allResults.win3NoDup = win3NoDup;
 
-      // 2 ตัวไม่รวมเบิ้ล
       const win2NoDup = getUniqueCombinations(digits, 2, false);
       addResult("เลข 2 ตัว ไม่รวมเบิ้ล", win2NoDup);
       allResults.win2NoDup = win2NoDup;
 
-      // 3 ตัวรวมเบิ้ล
       const win3WithDupOrdered = getThreeWithDupesOrdered(digits);
       addResult("เลข 3 ตัว รวมเบิ้ล", win3WithDupOrdered);
       allResults.win3WithDup = win3WithDupOrdered;
 
-      // 2 ตัวรวมเบิ้ล
       const win2WithDup = getAllPairsWithDupes(digits);
       addResult("เลข 2 ตัว รวมเบิ้ล", win2WithDup);
 
@@ -282,7 +321,6 @@
       });
     }
 
-    // ปุ่มพี่แคท: 2 ตัวไม่รวมเบิ้ล + 3 ตัวรวมเบิ้ล
     function copyCombo() {
       const text = allResults.win2NoDup.concat(allResults.win3WithDup).join(" ");
       if (!text) return;
@@ -298,71 +336,87 @@
       document.getElementById("results").innerHTML = "";
       allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
       document.getElementById('comboFloating').style.display = 'none';
-
-      // ✅ กดเริ่มใหม่แล้วโฟกัสกลับ + พร้อมวางทันที
       setTimeout(() => {
         const el = document.getElementById('input');
-        if (!el) return;
-        el.focus({ preventScroll: true });
-        try { el.select && el.select(); } catch (_) {}
+        if (el) { el.focus({ preventScroll: true }); try { el.select(); } catch (_) {} }
       }, 0);
     }
 
-    function checkEnter(event) {
-      if (event.key === "Enter") win();
-    }
-
+    function checkEnter(event) { if (event.key === "Enter") win(); }
+    
     document.getElementById("input").addEventListener("input", function () {
       this.value = this.value.replace(/\D/g, '');
     });
+
+    // ============ ฟังก์ชันจัดการ Modal แจ้งเตือน ============
+    function showError(message) {
+      document.getElementById("errorMsg").innerText = message;
+      document.getElementById("errorModal").style.display = "block";
+      document.getElementById("copy-success").style.display = "none";
+    }
+    
+    function closeModal() {
+      document.getElementById("errorModal").style.display = "none";
+      // ปิดแล้วให้กลับไปโฟกัสที่ช่องกรอก เพื่อให้แก้ไขได้เลย
+      document.getElementById("input").focus();
+    }
+    
+    function copyErrorMsg() {
+      const msg = document.getElementById("errorMsg").innerText;
+      navigator.clipboard.writeText(msg).then(() => {
+        const s = document.getElementById("copy-success");
+        s.style.display = "inline-block";
+        s.innerText = "คัดลอกแล้ว!";
+        setTimeout(() => s.style.display = "none", 2000);
+      });
+    }
+
+    // ปิด Modal เมื่อคลิกข้างนอก
+    window.onclick = function(event) {
+      const modal = document.getElementById("errorModal");
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
   </script>
 
-  <!-- ✅ Auto Focus (กันเด้งเวลาลากเมาส์/ครอปเลข) -->
   <script>
     (function () {
       let lockUntil = 0;
       let isPointerDown = false;
-
       function now() { return Date.now(); }
-
       function hasSelection() {
         const sel = window.getSelection && window.getSelection();
         return sel && sel.rangeCount > 0 && sel.toString().length > 0;
       }
-
       function shouldSkipFocus() {
+        // เพิ่มเงื่อนไข: ถ้า Modal เปิดอยู่ ห้ามแย่งโฟกัส
+        if (document.getElementById("errorModal").style.display === "block") return true;
+
         if (now() < lockUntil) return true;
         if (isPointerDown) return true;
         if (hasSelection()) return true;
-
         const ae = document.activeElement;
         if (ae && ae.id !== 'input' && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return true;
         return false;
       }
-
       function focusInput(selectAll = true) {
         if (shouldSkipFocus()) return;
         const el = document.getElementById('input');
         if (!el) return;
         el.focus({ preventScroll: true });
-        if (selectAll) {
-          try { el.select && el.select(); } catch (_) {}
-        }
+        if (selectAll) { try { el.select && el.select(); } catch (_) {} }
       }
-
       const resultsEl = document.getElementById('results');
       if (resultsEl) {
         resultsEl.addEventListener('pointerdown', () => { lockUntil = now() + 2500; }, { passive: true });
         resultsEl.addEventListener('wheel', () => { lockUntil = now() + 2500; }, { passive: true });
       }
-
       document.addEventListener('pointerdown', () => { isPointerDown = true; }, { passive: true });
       document.addEventListener('pointerup',   () => { isPointerDown = false; }, { passive: true });
       document.addEventListener('pointercancel', () => { isPointerDown = false; }, { passive: true });
-
       window.addEventListener('load', () => focusInput(true));
       window.addEventListener('pageshow', () => setTimeout(() => focusInput(true), 0));
-
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) setTimeout(() => focusInput(true), 0);
       });
