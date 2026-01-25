@@ -120,44 +120,85 @@
 
     /* ============ MODAL (แจ้งเตือน) สไตล์ใหม่ ============ */
     .modal-overlay {
-      display: none; /* ซ่อนก่อน */
+      display: none;
       position: fixed;
       z-index: 10000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.6); /* ฉากหลังมืด */
+      background-color: rgba(0,0,0,0.5); /* ฉากหลังมืดจางๆ */
       backdrop-filter: blur(2px);
     }
+    
     .modal-content {
       background-color: #fff;
-      margin: 15% auto;
-      padding: 25px;
-      border: 3px solid #ff5722; /* ขอบสีส้มเตือน */
-      border-radius: 15px;
-      width: 80%;
-      max-width: 350px;
+      margin: 20vh auto; /* จัดกึ่งกลางแนวตั้งพอประมาณ */
+      padding: 30px 25px;
+      border-radius: 15px; /* มุมโค้งมน */
+      width: 85%;
+      max-width: 380px;
       text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      animation: popIn 0.3s ease-out;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: popIn 0.2s ease-out;
+      border: none; /* เอาขอบสีแดงออก */
     }
+
     @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
+      from { transform: scale(0.9); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
+
     .modal-msg {
       font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ปุ่มคัดลอกคำพูดส่งลูกค้า (สีฟ้า) */
+    .btn-copy-error {
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
       font-weight: bold;
-      color: #d32f2f;
-      margin-bottom: 20px;
-    }
-    .modal-actions button {
+      padding: 12px;
+      border-radius: 8px;
       width: 100%;
-      margin: 5px 0;
+      border: none;
     }
-    .btn-copy-error { background-color: #2196F3; }
-    .btn-close-error { background-color: #757575; }
+    .btn-copy-error:active { background-color: #0056b3; }
+
+    /* ปุ่มปิด (แก้ไขเลข) (สีเทาเข้ม) */
+    .btn-close-error {
+      background-color: #545454;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      border: none;
+    }
+    .btn-close-error:active { background-color: #333; }
+
+    .success-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -188,17 +229,22 @@
 
   <div id="errorModal" class="modal-overlay">
     <div class="modal-content">
-      <div id="errorMsg" class="modal-msg">ข้อความแจ้งเตือน</div>
-      <div class="modal-actions">
-        <button class="btn-copy-error" onclick="copyErrorMsg()">คัดลอกข้อความ</button>
-        <button class="btn-close-error" onclick="closeModal()">ปิด</button>
+      <div id="copy-success-badge" style="display:none; margin-bottom:10px;">
+         <span class="success-badge">คัดลอกเรียบร้อย!</span>
       </div>
-      <span id="copy-success" style="color: green; font-size: 14px; display: none;">คัดลอกแล้ว!</span>
+      <div id="errorMsg" class="modal-msg">ข้อความแจ้งเตือน</div>
+      
+      <div class="modal-actions">
+        <button id="btnCopyError" class="btn-copy-error" onclick="copyErrorMsg()">คัดลอกคำพูดส่งลูกค้า</button>
+        <button class="btn-close-error" onclick="closeModal()">ปิด (แก้ไขเลข)</button>
+      </div>
     </div>
   </div>
 
   <script>
     let allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
+    // ตัวแปรเก็บข้อความที่จะคัดลอก
+    let textToCopy = "";
 
     // --- Logic เดิม ---
     function hasDuplicates(str) { return /(.).*\1/.test(str); }
@@ -246,9 +292,10 @@
       input = input.replace(/\D/g, '');
       const digits = input.split("");
 
-      // 1. เช็กความยาวขั้นต่ำ
+      // 1. เช็กความยาวขั้นต่ำ (เปลี่ยนเป็น Popup)
       if (input.length < 3) {
-        alert("กรุณากรอกเลขอย่างน้อย 3 ตัว");
+        // กรณีนี้ไม่ต้องมีปุ่มคัดลอกส่งลูกค้า เพราะเป็น Error ของคนคีย์เอง
+        showError("กรุณากรอกเลขอย่างน้อย 3 ตัว", null);
         return;
       }
 
@@ -258,17 +305,26 @@
 
       // กรณีที่ 1: ทั้งซ้ำ และ เกิน 7 ตัว
       if (isDuplicate && isTooLong) {
-        showError("เลขซ้ำและวินได้ไม่เกิน7ตัวจ้าแอดขอโพยใหม่จ้า");
+        showError(
+          "❗️เลขซ้ำและเกิน7หลักเเจ้งลค.=เลขซ้ำและวินได้ไม่เกิน7ตัวจ้า แอดขอโพยใหม่จ้า", 
+          "เลขซ้ำและวินได้ไม่เกิน7ตัวจ้า แอดขอโพยใหม่จ้า"
+        );
         return;
       }
       // กรณีที่ 2: เลขซ้ำอย่างเดียว
       if (isDuplicate) {
-        showError("เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่");
+        showError(
+          "❗️เลขซ้ำเเจ้งลค.= เลขซ้ำจ้า แอดขอโพยใหม่จ้า", 
+          "เลขซ้ำจ้า แอดขอโพยใหม่จ้า"
+        );
         return;
       }
       // กรณีที่ 3: เกิน 7 ตัวอย่างเดียว
       if (isTooLong) {
-        showError("วินได้ไม่เกิน7ตัวจ้าพี่แอดขอโพยใหม่จ้า");
+        showError(
+          "❗️เลขเกิน7หลักเเจ้งลค.=วินได้ไม่เกิน7ตัวจ้าแอดขอโพยใหม่จ้า", 
+          "วินได้ไม่เกิน7ตัวจ้าแอดขอโพยใหม่จ้า"
+        );
         return;
       }
 
@@ -348,26 +404,42 @@
       this.value = this.value.replace(/\D/g, '');
     });
 
-    // ============ ฟังก์ชันจัดการ Modal แจ้งเตือน ============
-    function showError(message) {
-      document.getElementById("errorMsg").innerText = message;
+    // ============ ฟังก์ชันจัดการ Modal แจ้งเตือน (Updated) ============
+    function showError(displayMessage, copyMessage) {
+      // ตั้งค่าข้อความที่โชว์
+      document.getElementById("errorMsg").innerText = displayMessage;
+      
+      // ตั้งค่าข้อความที่จะคัดลอก
+      textToCopy = copyMessage;
+
+      // จัดการปุ่มคัดลอก: ถ้าไม่มีข้อความให้คัดลอก (เช่น กรอกไม่ครบ 3) ให้ซ่อนปุ่ม
+      const btnCopy = document.getElementById("btnCopyError");
+      if (copyMessage) {
+        btnCopy.style.display = "block";
+      } else {
+        btnCopy.style.display = "none";
+      }
+
+      // รีเซ็ตสถานะการคัดลอกเก่า
+      document.getElementById("copy-success-badge").style.display = "none";
+      
+      // แสดง Modal
       document.getElementById("errorModal").style.display = "block";
-      document.getElementById("copy-success").style.display = "none";
     }
     
     function closeModal() {
       document.getElementById("errorModal").style.display = "none";
-      // ปิดแล้วให้กลับไปโฟกัสที่ช่องกรอก เพื่อให้แก้ไขได้เลย
+      // ปิดแล้วให้กลับไปโฟกัสที่ช่องกรอก
       document.getElementById("input").focus();
     }
     
     function copyErrorMsg() {
-      const msg = document.getElementById("errorMsg").innerText;
-      navigator.clipboard.writeText(msg).then(() => {
-        const s = document.getElementById("copy-success");
-        s.style.display = "inline-block";
-        s.innerText = "คัดลอกแล้ว!";
-        setTimeout(() => s.style.display = "none", 2000);
+      if (!textToCopy) return;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const badge = document.getElementById("copy-success-badge");
+        badge.style.display = "block";
+        // ซ่อน badge หลังจาก 2 วินาที
+        setTimeout(() => badge.style.display = "none", 2000);
       });
     }
 
@@ -390,7 +462,7 @@
         return sel && sel.rangeCount > 0 && sel.toString().length > 0;
       }
       function shouldSkipFocus() {
-        // เพิ่มเงื่อนไข: ถ้า Modal เปิดอยู่ ห้ามแย่งโฟกัส
+        // ถ้า Modal เปิดอยู่ ห้ามแย่งโฟกัส
         if (document.getElementById("errorModal").style.display === "block") return true;
 
         if (now() < lockUntil) return true;
