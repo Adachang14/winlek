@@ -55,15 +55,18 @@
     border-top: 1px dashed #ddd;
   }
 
+  /* ปรับขนาดปุ่มให้ใหญ่สะใจตามคำขอ */
   button{
-    padding:11px 19px;
-    font-size:15px;
+    padding:12px 20px; 
+    font-size:16px;
     border:none;
     border-radius:10px;
     cursor:pointer;
     color:#fff;
     font-weight: bold;
+    transition: transform 0.1s;
   }
+  button:active { transform: scale(0.95); }
   
   /* สีปุ่มต่างๆ */
   .btn-run{ background:#8e24aa; } /* ม่วง */
@@ -92,6 +95,43 @@
     color:green;
     font-weight:800;
   }
+
+  /* สไตล์ Popup แจ้งเตือนใหม่ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-box {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+  .modal-text {
+    font-size: 18px;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    color: #333;
+    line-height: 1.5;
+  }
+  .modal-btn-copy {
+    background: #007bff;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  .modal-btn-close {
+    background: #555;
+    width: 100%;
+  }
 </style>
 </head>
 
@@ -119,9 +159,17 @@
   <div id="output" class="result"></div>
 </div>
 
+<div id="customModal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modalMsg" class="modal-text"></div>
+    <button id="modalCopyBtn" class="modal-btn-copy" onclick="copyQuickMsg()">คัดลอกคำพูดส่งลูกค้า</button>
+    <button class="modal-btn-close" onclick="closeModal()">ปิด (แก้ไขเลข)</button>
+  </div>
+</div>
+
 <script>
   const MIN_LEN = 3;
-  let globalResults = []; // ตัวแปรเก็บผลลัพธ์เพื่อใช้ตอนแยกก๊อปปี้
+  let globalResults = [];
 
   function toThaiNumber(n){
     const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
@@ -138,7 +186,6 @@
     return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
   }
 
-  // สูตรวิน (Combination)
   function getCombinations(chars, size) {
     let result = [];
     const combine = (current, start) => {
@@ -152,6 +199,32 @@
     };
     combine([], 0);
     return result;
+  }
+
+  // ฟังก์ชันเปิด Popup แจ้งเตือน (ก๊อปข้อความได้)
+  function openModal(text, showCopyBtn = false) {
+    const modal = document.getElementById('customModal');
+    const msgBox = document.getElementById('modalMsg');
+    const copyBtn = document.getElementById('modalCopyBtn');
+    
+    msgBox.textContent = text;
+    copyBtn.style.display = showCopyBtn ? 'block' : 'none';
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('customModal').style.display = 'none';
+    setTimeout(() => document.getElementById('input').focus(), 100);
+  }
+
+  function copyQuickMsg() {
+    const text = "เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่";
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('modalCopyBtn');
+      const oldText = btn.innerText;
+      btn.innerText = "✅ คัดลอกแล้ว!";
+      setTimeout(() => btn.innerText = oldText, 1500);
+    });
   }
 
   function validateSets(sets){
@@ -169,13 +242,15 @@
       }
 
       if(hasDuplicates(num)){
-        alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")");
+        const alertMsg = "❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")";
+        openModal(alertMsg, true); // เปิด Popup และโชว์ปุ่มก๊อปด่วน
         return { ok:false };
       }
     }
 
     if(bad.length){
-      alert("❗️มีชุดที่ผิด (ต้องอย่างน้อย 3 ตัว)\n" + bad.join("\n") + "\n\nแก้ให้ครบก่อนนะ แล้วค่อยวินใหม่");
+      const alertMsg = "❗️มีชุดที่ผิด (ต้องอย่างน้อย 3 ตัว)\n" + bad.join("\n") + "\n\nแก้ให้ครบก่อนนะ แล้วค่อยวินใหม่";
+      openModal(alertMsg, false);
       return { ok:false };
     }
 
@@ -200,28 +275,19 @@
 
     let out = "";
     let count = 0;
-    globalResults = []; // ล้างค่าเก่า
+    globalResults = [];
 
     sets.forEach((num) => {
       count++;
       const digits = num.split('');
-      
-      // คำนวณ 2 ตัว
       const pairs = getCombinations(digits, 2);
-      // คำนวณ 3 ตัว
       const triplets = getCombinations(digits, 3);
 
-      // เก็บข้อมูลไว้ใช้ตอนกดปุ่มแยก
-      globalResults.push({
-        id: count,
-        pairs: pairs,
-        triplets: triplets
-      });
+      globalResults.push({ id: count, pairs: pairs, triplets: triplets });
 
-      // แสดงผลหน้าจอ
       out += `ชุดที่${toThaiNumber(count)}\n`;
-      out += pairs.join(" ") + "\n";   // บรรทัด 2 ตัว
-      out += triplets.join(" ") + "\n\n"; // บรรทัด 3 ตัว
+      out += pairs.join(" ") + "\n";
+      out += triplets.join(" ") + "\n\n";
     });
 
     document.getElementById("output").textContent = out.trim();
@@ -239,36 +305,24 @@
     }, 0);
   }
 
-  // ก๊อปปี้ทั้งหมด (เหมือนที่ตาเห็นหน้าจอ)
   function copyAllMixed(){
     const raw = document.getElementById("output").textContent;
     if(!raw.trim()) return;
-    
-    // ตัดคำว่าชุดที่ออก เพื่อให้เอาไปวางง่ายๆ (หรือถ้าอยากได้คำว่าชุดที่ด้วย ให้ลบบรรทัด replace ออกครับ)
     const cleanText = raw.replace(/^ชุดที่.*$/gm, "").replace(/^\s*[\r\n]/gm, ""); 
-
     copyToClipboard(cleanText, "คัดลอกทั้งหมดแล้ว!");
   }
 
-  // ก๊อปปี้แยกตามจำนวนตัว (2 หรือ 3)
   function copyOnlyDigit(digits){
     if(globalResults.length === 0) return;
-
     let textToCopy = "";
-    
     globalResults.forEach(item => {
-        if(digits === 2 && item.pairs.length > 0) {
-            textToCopy += item.pairs.join(" ") + " ";
-        } else if(digits === 3 && item.triplets.length > 0) {
-            textToCopy += item.triplets.join(" ") + " ";
-        }
+        if(digits === 2 && item.pairs.length > 0) textToCopy += item.pairs.join(" ") + " ";
+        else if(digits === 3 && item.triplets.length > 0) textToCopy += item.triplets.join(" ") + " ";
     });
-
     if(!textToCopy.trim()) {
-        alert("ไม่มีเลข " + digits + " ตัว ให้คัดลอก");
+        openModal("ไม่มีเลข " + digits + " ตัว ให้คัดลอก", false);
         return;
       }
-
     copyToClipboard(textToCopy.trim(), `คัดลอกเฉพาะ ${digits} ตัวแล้ว!`);
   }
 
@@ -281,11 +335,8 @@
     });
   }
 
-  function goHome(){
-    window.location.href = "index.html"; 
-  }
+  function goHome(){ window.location.href = "index.html"; }
 
-  // กด Enter เพื่อวินทันที
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
@@ -293,7 +344,6 @@
     }
   });
 
-  // แปลง input ให้ขึ้นบรรทัดใหม่เมื่อเจอตัวอักษรที่ไม่ใช่ตัวเลข
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
     const after = before.replace(/[^\d]+/g, '\n');
