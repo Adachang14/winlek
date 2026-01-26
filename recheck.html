@@ -201,12 +201,12 @@
 <body>
 
 <div class="main-container">
-    <h2>✨ ตรวจสอบตัวซ้ำ (รวมกลับ)</h2>
+    <h2>✨ ตรวจสอบตัวซ้ำ ✨(ตัดรวมตัวกลับ)</h2>
 
     <div>
-        <label for="inputNumbers">📝 วางเลข (พิมพ์ปนตัวหนังสือได้เลย):</label>
+        <label for="inputNumbers">📝 ช่องวางเลข (2และ3หลัก):</label>
         <textarea id="inputNumbers" 
-            placeholder="ตัวอย่าง: 12 21 123... (วางปุ๊บ ระบบคัดเลขออกให้เอง)"></textarea>
+            placeholder="ตัวอย่าง: 12 21 123... (วางปุ๊บ ระบบคัดเลขออกให้เอง )"></textarea>
     </div>
 
     <div class="button-area">
@@ -218,7 +218,7 @@
     <div class="result-section">
         <div class="result-grid">
             <div class="result-box">
-                <label class="label-dup">❌ เลขที่ "ซ้ำ" (ตัดออก):</label>
+                <label class="label-dup">❌ เลขที่ "ซ้ำ" (รวมตัวกลับด้วย):</label>
                 <textarea id="duplicateResult" readonly></textarea>
                 <div style="text-align: right; margin-top: 5px;">
                     <span id="msg-dup" class="copied-msg">คัดลอกแล้ว!</span>
@@ -229,7 +229,7 @@
             </div>
 
             <div class="result-box">
-                <label class="label-unique">✅ ผลลัพธ์ (พร้อมใช้):</label>
+                <label class="label-unique">✅ ผลลัพธ์ (ที่ตัดซ้ำออกเเล้ว/พร้อมใช้):</label>
                 <textarea id="uniqueResult" readonly></textarea>
                 <div style="text-align: right; margin-top: 5px;">
                     <span id="msg-unique" class="copied-msg">คัดลอกแล้ว!</span>
