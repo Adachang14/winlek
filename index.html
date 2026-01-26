@@ -13,13 +13,14 @@
     gtag('config', 'G-5QWYMLXEDM');
   </script>
   <style>
+    /* จัดกลุ่มปุ่มมุมขวาบน */
     .top-right {
       position: absolute;
       top: 20px;
       right: 20px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 8px; /* เพิ่มระยะห่างระหว่างปุ่มนิดนึงให้สวย */
     }
 
     body {
@@ -45,6 +46,7 @@
       font-size: 18px;
     }
 
+    /* ปุ่มสีน้ำเงิน (ค่าเริ่มต้น) */
     button {
       margin: 5px;
       padding: 10px 24px;
@@ -54,8 +56,10 @@
       cursor: pointer;
       background-color: #2196F3;
       color: white;
+      font-family: 'Sarabun', sans-serif; /* บังคับฟอนต์ให้เหมือนกัน */
     }
 
+    /* ปุ่มสีเขียว (รูดยาว) */
     .mini-button {
       font-size: 14px;
       padding: 10px 14px;
@@ -64,8 +68,10 @@
       color: white;
       border: none;
       cursor: pointer;
+      font-weight: 500;
     }
 
+    /* ปุ่มสีม่วง (วินรวม) */
     .winloom-button {
       font-size: 14px;
       padding: 10px 14px;
@@ -77,19 +83,19 @@
       font-weight: 800;
     }
 
-    /* ปุ่มแยกเลขซ้ำ (สีเหลืองอ่อน) ที่เพิ่มใหม่ */
+    /* ✅ ปุ่มสีส้ม (แยกเลขซ้ำ) - ปรับใหม่ให้เข้าพวก */
     .recheck-button {
       font-size: 14px;
       padding: 10px 14px;
       border-radius: 10px;
-      background-color: #fff176; /* สีเหลืองอ่อน */
-      color: #333; /* ตัวหนังสือสีเข้มให้อ่านง่าย */
-      border: 1px solid #fdd835; /* ขอบเหลืองเข้ม */
+      background-color: #ff9800; /* สีส้มสดใส */
+      color: white; /* ตัวหนังสือสีขาว (เหมือนเพื่อน) */
+      border: none; /* ไม่มีขอบ (เหมือนเพื่อน) */
       cursor: pointer;
       font-weight: 800;
     }
     .recheck-button:hover {
-      background-color: #fff59d;
+      background-color: #f57c00; /* สีเข้มขึ้นตอนเอาเมาส์ชี้ */
     }
 
     .result-box {
@@ -133,7 +139,7 @@
       border-radius: 10px;
     }
 
-    /* ============ MODAL (แจ้งเตือน) สไตล์ใหม่ ============ */
+    /* ============ MODAL (แจ้งเตือน) ============ */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -178,7 +184,6 @@
       gap: 10px;
     }
 
-    /* ปุ่มคัดลอกคำพูดส่งลูกค้า (สีฟ้า) */
     .btn-copy-error {
       background-color: #007bff;
       color: white;
@@ -191,7 +196,6 @@
     }
     .btn-copy-error:active { background-color: #0056b3; }
 
-    /* ปุ่มปิด (แก้ไขเลข) (สีเทาเข้ม) */
     .btn-close-error {
       background-color: #545454;
       color: white;
@@ -261,7 +265,6 @@
     let allResults = { win2NoDup: [], win3NoDup: [], win3WithDup: [] };
     let textToCopy = "";
 
-    // --- Logic เดิม ---
     function hasDuplicates(str) { return /(.).*\1/.test(str); }
 
     function getUniqueCombinations(arr, size, allowDuplicates = false) {
@@ -301,19 +304,16 @@
       return num.toString().split('').map(d => thaiDigits[d]).join('');
     }
 
-    // --- Main Function ---
     function win() {
       let input = document.getElementById("input").value.trim();
       input = input.replace(/\D/g, '');
       const digits = input.split("");
 
-      // 1. เช็กความยาวขั้นต่ำ
       if (input.length < 3) {
         showError("กรุณากรอกเลขอย่างน้อย 3 ตัว", null);
         return;
       }
 
-      // 2. เช็กเงื่อนไขพิเศษ
       const isDuplicate = hasDuplicates(input);
       const isTooLong = input.length > 7;
 
@@ -339,7 +339,6 @@
         return;
       }
 
-      // --- คำนวณปกติ ---
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = `
         <div class="result-box">
@@ -415,25 +414,22 @@
       this.value = this.value.replace(/\D/g, '');
     });
 
-    // ============ ฟังก์ชันจัดการ Modal แจ้งเตือน ============
     function showError(displayMessage, copyMessage) {
       document.getElementById("errorMsg").innerText = displayMessage;
       textToCopy = copyMessage;
-
       const btnCopy = document.getElementById("btnCopyError");
       if (copyMessage) {
         btnCopy.style.display = "block";
       } else {
         btnCopy.style.display = "none";
       }
-
       document.getElementById("copy-success-badge").style.display = "none";
       document.getElementById("errorModal").style.display = "block";
     }
     
     function closeModal() {
       document.getElementById("errorModal").style.display = "none";
-      document.getElementById("input").focus(); // โฟกัสกลับไปที่ช่องกรอก
+      document.getElementById("input").focus();
     }
     
     function copyErrorMsg() {
@@ -452,22 +448,16 @@
       }
     }
 
-    // ✅ เพิ่ม: กด Spacebar เพื่อปิด Modal
     document.addEventListener('keydown', function(event) {
       const modal = document.getElementById("errorModal");
-      // เช็กว่า Modal เปิดอยู่หรือไม่
       if (modal.style.display === "block") {
-        // ถ้ากด Spacebar
         if (event.code === "Space" || event.key === " ") {
-          event.preventDefault(); // กันไม่ให้หน้าเว็บเลื่อนหรือพิมพ์เว้นวรรค
+          event.preventDefault();
           closeModal();
         }
       }
     });
 
-  </script>
-
-  <script>
     (function () {
       let lockUntil = 0;
       let isPointerDown = false;
@@ -477,9 +467,7 @@
         return sel && sel.rangeCount > 0 && sel.toString().length > 0;
       }
       function shouldSkipFocus() {
-        // ถ้า Modal เปิดอยู่ ห้ามแย่งโฟกัส (เพื่อให้ Spacebar ทำงานกับ Modal ได้ดี)
         if (document.getElementById("errorModal").style.display === "block") return true;
-
         if (now() < lockUntil) return true;
         if (isPointerDown) return true;
         if (hasSelection()) return true;
