@@ -1,1 +1,49 @@
+<div class="recheck-container">
+    <h3>🔍 ระบบตรวจเช็กตัวเลขซ้ำ</h3>
+    
+    <div class="input-section">
+        <label>วางชุดตัวเลขที่นี่:</label>
+        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 01 02 01 03 04 02..."></textarea>
+    </div>
 
+    <button onclick="checkAndClean()" class="btn-process">ประมวลผลทันที</button>
+
+    <div class="result-grid">
+        <div class="result-box">
+            <label>❌ ตัวเลขที่ซ้ำกัน:</label>
+            <textarea id="duplicateResult" readonly></textarea>
+        </div>
+
+        <div class="result-box">
+            <label>✅ ผลลัพธ์ (ตัดตัวซ้ำออกแล้ว):</label>
+            <textarea id="uniqueResult" readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+function checkAndClean() {
+    const input = document.getElementById('inputNumbers').value;
+    // แยกตัวเลขด้วยช่องว่าง, คอมม่า หรือการขึ้นบรรทัดใหม่
+    const allNums = input.split(/[\s,\n]+/).filter(n => n.trim() !== "");
+    
+    const seen = new Set();
+    const duplicates = new Set();
+    const uniqueList = [];
+
+    allNums.forEach(num => {
+        if (seen.has(num)) {
+            duplicates.add(num);
+        } else {
+            seen.add(num);
+            uniqueList.push(num);
+        }
+    });
+
+    // แสดงผลในช่องที่ 2 (ตัวซ้ำ)
+    document.getElementById('duplicateResult').value = Array.from(duplicates).join(' ');
+    
+    // แสดงผลในช่องที่ 3 (ตัดซ้ำแล้ว) - เรียงลำดับให้นิดหน่อยเพื่อความสวยงาม
+    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
+}
+</script>
