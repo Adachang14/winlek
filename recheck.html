@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>วินเลข - ตรวจสอบตัวซ้ำ</title>
+    <title>วินเลข - ตรวจสอบตัวซ้ำ (รวมกลับเลข)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -121,11 +121,11 @@
 <body>
 
 <div class="main-container">
-    <h2>✨ วินเลข - ตรวจสอบและคัดแยกตัวซ้ำ</h2>
+    <h2>✨ วินเลข - ตรวจสอบตัวซ้ำ (รวมกลับ)</h2>
 
     <div>
-        <label for="inputNumbers">📝 วางชุดตัวเลขที่ต้องการตรวจสอบ:</label>
-        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 12 34 12 56 78 34..."></textarea>
+        <label for="inputNumbers">📝 วางชุดตัวเลข (123 = 321):</label>
+        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 12 21 123 321..."></textarea>
     </div>
 
     <div class="button-area">
@@ -136,7 +136,7 @@
     <div class="result-section">
         <div class="result-grid">
             <div class="result-box">
-                <label class="label-dup">❌ รายการเลขที่ "ซ้ำ" กัน:</label>
+                <label class="label-dup">❌ เลขที่ "ซ้ำ" (รวมกลับเลข):</label>
                 <textarea id="duplicateResult" readonly></textarea>
                 <div style="text-align: right; margin-top: 5px;">
                     <button onclick="copyToClipboard('duplicateResult')" class="btn btn-blue" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
@@ -163,22 +163,32 @@ function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
     if (!input.trim()) return;
     
+    // แยกตัวเลขออกมา
     const allNums = input.split(/[\s,\n]+/).filter(n => n.trim() !== "");
-    const seen = new Set();
-    const duplicates = new Set();
-    const uniqueList = [];
+    
+    const seenKeys = new Set(); // เก็บ "คีย์" ที่เรียงเลขแล้ว (เช่น 12, 123)
+    const duplicates = []; // เก็บตัวเลขต้นฉบับที่เป็นตัวซ้ำ
+    const uniqueList = []; // เก็บตัวเลขต้นฉบับที่ไม่ซ้ำ
 
     allNums.forEach(num => {
-        if (seen.has(num)) {
-            duplicates.add(num);
+        // สร้างคีย์เปรียบเทียบ: เอาเลขมาเรียงไส้ใน (เช่น "321" -> "123")
+        let key = num.split('').sort().join('');
+
+        if (seenKeys.has(key)) {
+            // ถ้าเคยเจอคีย์นี้แล้ว (เช่น เจอ 123 มาก่อน แล้วรอบนี้เจอ 321)
+            duplicates.push(num); // เก็บ 321 ลงกล่องซ้ำ
         } else {
-            seen.add(num);
-            uniqueList.push(num);
+            // ถ้ายังไม่เคยเจอ
+            seenKeys.add(key); // จำคีย์ไว้
+            uniqueList.push(num); // เก็บตัวแรกลงกล่องดี
         }
     });
 
-    document.getElementById('duplicateResult').value = Array.from(duplicates).sort().join(' ');
-    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a.localeCompare(b, undefined, {numeric: true})).join(' ');
+    // แสดงผล
+    document.getElementById('duplicateResult').value = duplicates.join(' ');
+    
+    // เรียงลำดับผลลัพธ์จากน้อยไปมาก
+    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
 }
 
 function clearAll() {
