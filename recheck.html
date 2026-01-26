@@ -6,153 +6,163 @@
     <title>วินเลข - ตรวจสอบตัวซ้ำ</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* 1. พื้นหลัง: เอาสีเหลืองออก เปลี่ยนเป็นสีเทาอ่อนสะอาดตา */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f3e5f5; /* พื้นหลังม่วงอ่อน */
+            background-color: #f4f6f8; 
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             min-height: 100vh;
         }
 
         .main-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 700px;
-            padding: 30px;
+            max-width: 800px; /* ขยายความกว้างกล่องหลักอีกนิด */
+            padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            /* ใส่ขอบด้านบนสีส้มทอง ให้รู้ว่าเป็นวินเลข แบบมินิมอล */
+            border-top: 8px solid #fbc02d; 
         }
 
         h2 {
             text-align: center;
-            color: #7b1fa2; /* สีม่วงเข้ม */
-            font-size: 28px;
+            color: #333;
+            font-size: 32px; /* หัวข้อใหญ่ขึ้น */
             margin-bottom: 30px;
+            font-weight: 700;
         }
 
         label {
             font-weight: bold;
-            color: #555;
+            color: #444;
             display: block;
-            margin-bottom: 10px;
-            font-size: 18px;
+            margin-bottom: 12px;
+            font-size: 20px; /* หัวข้อช่องใหญ่ขึ้น */
         }
 
+        /* 2. ช่องกรอกเลข: ปรับฟอนต์ให้ใหญ่สะใจ */
         textarea {
             width: 100%;
-            height: 120px;
+            height: 160px; /* สูงขึ้น */
             padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            
+            /* --- โซนปรับขนาดตัวเลข --- */
+            font-size: 24px; /* ตัวเลขใหญ่มาก มองเห็นชัด */
+            letter-spacing: 1px; /* ห่างกันนิดนึงให้อ่านง่าย */
+            line-height: 1.5;
+            font-weight: 500;
+            /* ----------------------- */
+            
             color: #333;
             box-sizing: border-box;
+            background-color: #fcfcfc;
             resize: vertical;
-            font-family: 'Sarabun', sans-serif;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #ba68c8;
+            border-color: #fbc02d; /* เส้นขอบตอนคลิกเป็นสีส้มทอง */
+            background-color: #fff;
         }
 
         .button-area {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin: 25px 0;
+            gap: 20px;
+            margin: 30px 0;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 12px 35px;
             border: none;
             border-radius: 50px;
-            font-size: 16px;
+            font-size: 18px; /* ตัวหนังสือในปุ่มใหญ่ขึ้น */
             font-weight: bold;
             color: white;
             cursor: pointer;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            transition: all 0.2s;
         }
+        .btn:hover { transform: translateY(-2px); }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+        /* ปุ่มใช้โทนสีมาตรฐาน ดูง่าย */
+        .btn-process { background-color: #ffb300; color: #fff; } /* ส้มวินเลข */
+        .btn-clear { background-color: #cfd8dc; color: #555; }   /* เทาอ่อน */
 
-        .btn-purple { background-color: #9c27b0; }
-        .btn-blue { background-color: #2196f3; }
-        .btn-green { background-color: #4caf50; }
-        .btn-orange { background-color: #ff9800; }
-        
         .result-section {
             margin-top: 30px;
-            border-top: 2px dashed #e0e0e0;
             padding-top: 20px;
+            border-top: 1px solid #eee;
         }
 
         .result-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 25px;
         }
-
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .result-grid { grid-template-columns: 1fr; }
         }
 
         .result-box {
-            background-color: #f9f9f9;
-            padding: 15px;
+            background-color: #fafafa;
+            padding: 20px;
             border-radius: 15px;
+            border: 1px solid #eee;
         }
 
+        /* ปรับสีหัวข้อผลลัพธ์ */
         .label-dup { color: #d32f2f; }
-        .label-unique { color: #388e3c; }
+        .label-unique { color: #2e7d32; }
+
+        .copy-btn {
+            margin-top: 10px;
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            float: right;
+            color: white;
+        }
+        .copy-red { background-color: #ef5350; }
+        .copy-green { background-color: #66bb6a; }
 
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h2>✨ วินเลข - ตรวจสอบและคัดแยกตัวซ้ำ</h2>
+    <h2>🟡 ตรวจสอบเลขซ้ำ</h2>
 
     <div>
-        <label for="inputNumbers">📝 วางชุดตัวเลขที่ต้องการตรวจสอบ:</label>
-        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 12 34 12 56 78 34..."></textarea>
+        <label>วางตัวเลขที่นี่ (ตัวใหญ่ เห็นชัด):</label>
+        <textarea id="inputNumbers" placeholder="12 34 56..."></textarea>
     </div>
 
     <div class="button-area">
-        <button onclick="checkAndClean()" class="btn btn-purple">🚀 ประมวลผล</button>
-        <button onclick="clearAll()" class="btn btn-orange">🧹 ล้างข้อมูล</button>
+        <button onclick="checkAndClean()" class="btn btn-process">🚀 ตรวจสอบ</button>
+        <button onclick="clearAll()" class="btn btn-clear">ล้างค่า</button>
     </div>
 
     <div class="result-section">
         <div class="result-grid">
             <div class="result-box">
-                <label class="label-dup">❌ รายการเลขที่ "ซ้ำ" กัน:</label>
+                <label class="label-dup">❌ เลขที่ซ้ำ:</label>
                 <textarea id="duplicateResult" readonly></textarea>
-                <div style="text-align: right; margin-top: 5px;">
-                    <button onclick="copyToClipboard('duplicateResult')" class="btn btn-blue" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
-                        📋 คัดลอก
-                    </button>
-                </div>
+                <button onclick="copyToClipboard('duplicateResult')" class="copy-btn copy-red">Copy</button>
             </div>
 
             <div class="result-box">
-                <label class="label-unique">✅ ผลลัพธ์ที่ "คัดแล้ว":</label>
+                <label class="label-unique">✅ ตัดซ้ำแล้ว (พร้อมใช้):</label>
                 <textarea id="uniqueResult" readonly></textarea>
-                <div style="text-align: right; margin-top: 5px;">
-                    <button onclick="copyToClipboard('uniqueResult')" class="btn btn-green" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
-                        📋 คัดลอก
-                    </button>
-                </div>
+                <button onclick="copyToClipboard('uniqueResult')" class="copy-btn copy-green">Copy</button>
             </div>
         </div>
     </div>
@@ -162,8 +172,10 @@
 function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
     if (!input.trim()) return;
-    
+
+    // แยกเลข (รองรับเว้นวรรค, คอมม่า, บรรทัดใหม่)
     const allNums = input.split(/[\s,\n]+/).filter(n => n.trim() !== "");
+    
     const seen = new Set();
     const duplicates = new Set();
     const uniqueList = [];
@@ -177,8 +189,13 @@ function checkAndClean() {
         }
     });
 
+    // แสดงผล (เรียงเลขให้ด้วย)
     document.getElementById('duplicateResult').value = Array.from(duplicates).sort().join(' ');
-    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a.localeCompare(b, undefined, {numeric: true})).join(' ');
+    
+    // เรียงเลขผลลัพธ์ น้อย -> มาก
+    // ถ้าอยากให้เรียงตามที่พิมพ์มา ให้ลบ .sort(...) ออก
+    uniqueList.sort((a, b) => a - b); 
+    document.getElementById('uniqueResult').value = uniqueList.join(' ');
 }
 
 function clearAll() {
@@ -191,11 +208,9 @@ function copyToClipboard(elementId) {
     const copyText = document.getElementById(elementId);
     if (!copyText.value) return;
     copyText.select();
+    copyText.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(copyText.value).then(() => {
-        const btn = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "✅ คัดแล้ว!";
-        setTimeout(() => { btn.innerHTML = originalText; }, 1200);
+        alert("คัดลอกแล้ว!");
     });
 }
 </script>
