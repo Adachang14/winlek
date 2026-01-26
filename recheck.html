@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>วินเลข - ตรวจสอบตัวซ้ำ (รวมกลับเลข)</title>
+    <title>วินเลข - ตรวจสอบตัวซ้ำ (Recheck)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f3e5f5; /* พื้นหลังม่วงอ่อน */
+            background-color: #f3e5f5;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -28,7 +28,7 @@
 
         h2 {
             text-align: center;
-            color: #7b1fa2; /* สีม่วงเข้ม */
+            color: #7b1fa2;
             font-size: 28px;
             margin-bottom: 30px;
         }
@@ -86,10 +86,10 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .btn-purple { background-color: #9c27b0; }
+        .btn-purple { background-color: #9c27b0; } /* ปุ่มประมวลผล */
+        .btn-red { background-color: #d32f2f; }    /* ปุ่มล้างสีแดง */
         .btn-blue { background-color: #2196f3; }
         .btn-green { background-color: #4caf50; }
-        .btn-orange { background-color: #ff9800; }
         
         .result-section {
             margin-top: 30px;
@@ -121,22 +121,22 @@
 <body>
 
 <div class="main-container">
-    <h2>✨ วินเลข - ตรวจสอบตัวซ้ำ (รวมกลับ)</h2>
+    <h2>✨ ตรวจสอบตัวซ้ำ (รวมกลับ)</h2>
 
     <div>
-        <label for="inputNumbers">📝 วางชุดตัวเลข (123 = 321):</label>
+        <label for="inputNumbers">📝 วางเลข (กด Enter เพื่อคำนวณ):</label>
         <textarea id="inputNumbers" placeholder="ตัวอย่าง: 12 21 123 321..."></textarea>
     </div>
 
     <div class="button-area">
         <button onclick="checkAndClean()" class="btn btn-purple">🚀 ประมวลผล</button>
-        <button onclick="clearAll()" class="btn btn-orange">🧹 ล้างข้อมูล</button>
+        <button onclick="clearAll()" class="btn btn-red">🧹 ล้างข้อมูล</button>
     </div>
 
     <div class="result-section">
         <div class="result-grid">
             <div class="result-box">
-                <label class="label-dup">❌ เลขที่ "ซ้ำ" (รวมกลับเลข):</label>
+                <label class="label-dup">❌ เลขที่ "ซ้ำ" (ตัดออก):</label>
                 <textarea id="duplicateResult" readonly></textarea>
                 <div style="text-align: right; margin-top: 5px;">
                     <button onclick="copyToClipboard('duplicateResult')" class="btn btn-blue" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
@@ -146,7 +146,7 @@
             </div>
 
             <div class="result-box">
-                <label class="label-unique">✅ ผลลัพธ์ที่ "คัดแล้ว":</label>
+                <label class="label-unique">✅ ผลลัพธ์ (พร้อมใช้):</label>
                 <textarea id="uniqueResult" readonly></textarea>
                 <div style="text-align: right; margin-top: 5px;">
                     <button onclick="copyToClipboard('uniqueResult')" class="btn btn-green" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
@@ -159,35 +159,36 @@
 </div>
 
 <script>
+// เพิ่มการดักจับปุ่ม Enter
+document.getElementById("inputNumbers").addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault(); // ป้องกันการขึ้นบรรทัดใหม่
+        checkAndClean(); // สั่งให้ทำงานทันที
+    }
+});
+
 function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
     if (!input.trim()) return;
     
-    // แยกตัวเลขออกมา
     const allNums = input.split(/[\s,\n]+/).filter(n => n.trim() !== "");
     
-    const seenKeys = new Set(); // เก็บ "คีย์" ที่เรียงเลขแล้ว (เช่น 12, 123)
-    const duplicates = []; // เก็บตัวเลขต้นฉบับที่เป็นตัวซ้ำ
-    const uniqueList = []; // เก็บตัวเลขต้นฉบับที่ไม่ซ้ำ
+    const seenKeys = new Set();
+    const duplicates = [];
+    const uniqueList = [];
 
     allNums.forEach(num => {
-        // สร้างคีย์เปรียบเทียบ: เอาเลขมาเรียงไส้ใน (เช่น "321" -> "123")
-        let key = num.split('').sort().join('');
+        let key = num.split('').sort().join(''); // เรียงไส้ในเพื่อเช็กกลับเลข
 
         if (seenKeys.has(key)) {
-            // ถ้าเคยเจอคีย์นี้แล้ว (เช่น เจอ 123 มาก่อน แล้วรอบนี้เจอ 321)
-            duplicates.push(num); // เก็บ 321 ลงกล่องซ้ำ
+            duplicates.push(num);
         } else {
-            // ถ้ายังไม่เคยเจอ
-            seenKeys.add(key); // จำคีย์ไว้
-            uniqueList.push(num); // เก็บตัวแรกลงกล่องดี
+            seenKeys.add(key);
+            uniqueList.push(num);
         }
     });
 
-    // แสดงผล
     document.getElementById('duplicateResult').value = duplicates.join(' ');
-    
-    // เรียงลำดับผลลัพธ์จากน้อยไปมาก
     document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
 }
 
@@ -195,6 +196,7 @@ function clearAll() {
     document.getElementById('inputNumbers').value = '';
     document.getElementById('duplicateResult').value = '';
     document.getElementById('uniqueResult').value = '';
+    document.getElementById('inputNumbers').focus();
 }
 
 function copyToClipboard(elementId) {
