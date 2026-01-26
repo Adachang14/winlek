@@ -20,7 +20,7 @@
         .main-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 900px; /* ขยายความกว้างรวมอีกนิดให้ช่องใหญ่ๆ ดูสมดุล */
+            max-width: 700px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -41,17 +41,17 @@
             font-size: 18px;
         }
 
-        /* สไตล์พื้นฐานของทุกช่องข้อความ */
         textarea {
             width: 100%;
+            height: 120px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 15px;
             font-size: 16px;
             color: #333;
             box-sizing: border-box;
+            resize: vertical;
             font-family: 'Sarabun', sans-serif;
-            background-color: white;
         }
 
         textarea:focus {
@@ -59,23 +59,7 @@
             border-color: #ba68c8;
         }
 
-        /* --- ตั้งค่าเฉพาะเจาะจง --- */
-
-        /* 1. ช่องบน (วางเลข): ขนาดปกติ */
-        #inputNumbers {
-            height: 120px; 
-            resize: vertical; /* ให้ลากปรับสูงต่ำได้ */
-        }
-
-        /* 2. ช่องล่าง (ผลลัพธ์): ขนาดใหญ่ + ลากปรับได้ */
-        #duplicateResult, #uniqueResult {
-            height: 300px; /* สูงสะใจ */
-            resize: vertical; /* เปิดให้ลากมุมขวาล่างได้! */
-            font-size: 20px; /* ตัวเลขใหญ่ขึ้นอีกนิดให้อ่านง่าย */
-        }
-
-        /* ----------------------- */
-
+        /* พื้นที่ปุ่ม เรียงแนวนอน */
         .button-area {
             display: flex;
             justify-content: center;
@@ -100,12 +84,20 @@
             text-decoration: none;
             min-width: 120px;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
         .btn-purple { background-color: #9c27b0; }
         .btn-red { background-color: #d32f2f; }
         .btn-blue { background-color: #1976D2; }
-
+        
+        /* ปุ่ม Copy เล็ก */
+        .btn-copy { background-color: #2196f3; font-size: 14px; padding: 8px 15px; min-width: auto; }
+        .btn-copy-green { background-color: #4caf50; font-size: 14px; padding: 8px 15px; min-width: auto; }
+        
         .result-section {
             margin-top: 30px;
             border-top: 2px dashed #e0e0e0;
@@ -126,50 +118,32 @@
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 15px;
+            position: relative; /* เพื่อให้จัดตำแหน่งข้อความแจ้งเตือนได้ */
         }
 
-        .label-dup { color: #d32f2f; font-size: 20px; }
-        .label-unique { color: #388e3c; font-size: 20px; }
+        .label-dup { color: #d32f2f; }
+        .label-unique { color: #388e3c; }
 
-        /* ปุ่ม Copy ใหญ่ */
-        .btn-copy-lg {
-            font-size: 18px; /* ตัวหนังสือใหญ่ */
-            padding: 12px 35px; /* ปุ่มกว้าง */
-            border-radius: 50px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-            margin-top: 10px;
-        }
-        .btn-copy-lg:hover { transform: translateY(-2px); }
-        
-        .bg-blue { background-color: #2196f3; }
-        .bg-green { background-color: #4caf50; }
-
+        /* ข้อความแจ้งเตือนสีเขียว "คัดลอกแล้ว!" */
         .copied-msg {
-            display: none;
-            color: #2e7d32;
+            display: none; /* ซ่อนไว้ก่อน */
+            color: #2e7d32; /* สีเขียว */
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             margin-left: 10px;
             vertical-align: middle;
         }
 
-        /* Modal */
+        /* ============ CSS สำหรับ Modal (Pop-up) สวยๆ ============ */
         .modal-overlay {
-            display: none;
+            display: none; /* ซ่อนเป็นค่าเริ่มต้น */
             position: fixed;
             z-index: 10000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.5); /* ฉากหลังดำจางๆ */
             backdrop-filter: blur(2px);
         }
         
@@ -198,6 +172,7 @@
             line-height: 1.5;
         }
 
+        /* ปุ่มปิด Pop-up สีเทาเข้ม */
         .btn-close-error {
             background-color: #545454;
             color: white;
@@ -221,7 +196,7 @@
     <div>
         <label for="inputNumbers">📝 วางเลข (พิมพ์ปนตัวหนังสือได้เลย):</label>
         <textarea id="inputNumbers" 
-            placeholder="ตัวอย่าง: คุณเอ 12 21 123... (วางปุ๊บ ระบบคัดเลขออกให้เอง)"></textarea>
+            placeholder="ตัวอย่าง: 12 21 123... (วางปุ๊บ ระบบคัดเลขออกให้เอง)"></textarea>
     </div>
 
     <div class="button-area">
@@ -235,22 +210,22 @@
             <div class="result-box">
                 <label class="label-dup">❌ เลขที่ "ซ้ำ" (ตัดออก):</label>
                 <textarea id="duplicateResult" readonly></textarea>
-                <div style="text-align: left; margin-top: 5px;">
-                    <button onclick="copyToClipboard('duplicateResult', 'msg-dup')" class="btn-copy-lg bg-blue">
+                <div style="text-align: right; margin-top: 5px;">
+                    <span id="msg-dup" class="copied-msg">คัดลอกแล้ว!</span>
+                    <button onclick="copyToClipboard('duplicateResult', 'msg-dup')" class="btn btn-copy">
                         📋 คัดลอก
                     </button>
-                    <span id="msg-dup" class="copied-msg">คัดลอกแล้ว!</span>
                 </div>
             </div>
 
             <div class="result-box">
                 <label class="label-unique">✅ ผลลัพธ์ (พร้อมใช้):</label>
                 <textarea id="uniqueResult" readonly></textarea>
-                <div style="text-align: left; margin-top: 5px;">
-                    <button onclick="copyToClipboard('uniqueResult', 'msg-unique')" class="btn-copy-lg bg-green">
+                <div style="text-align: right; margin-top: 5px;">
+                    <span id="msg-unique" class="copied-msg">คัดลอกแล้ว!</span>
+                    <button onclick="copyToClipboard('uniqueResult', 'msg-unique')" class="btn btn-copy-green">
                         📋 คัดลอก
                     </button>
-                    <span id="msg-unique" class="copied-msg">คัดลอกแล้ว!</span>
                 </div>
             </div>
         </div>
@@ -259,12 +234,14 @@
 
 <div id="errorModal" class="modal-overlay">
     <div class="modal-content">
-        <div id="errorMsg" class="modal-msg"></div>
+        <div id="errorMsg" class="modal-msg">
+            </div>
         <button class="btn-close-error" onclick="closeModal()">ปิด (แก้ไขเลข)</button>
     </div>
 </div>
 
 <script>
+// ดักจับปุ่ม Enter
 document.getElementById("inputNumbers").addEventListener("keydown", function(event) {
     if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault(); 
@@ -276,10 +253,12 @@ function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
     if (!input.trim()) return;
     
+    // 1. ดึงเฉพาะกลุ่มตัวเลข
     let allNums = input.match(/\d+/g);
     
     if (!allNums || allNums.length === 0) return;
 
+    // 2. ตรวจสอบเลขเกิน 3 หลัก
     const invalidNums = [];
     const validNums = [];
 
@@ -291,19 +270,25 @@ function checkAndClean() {
         }
     });
 
+    // ถ้าเจอเลขผิดปกติ ให้เด้ง Modal สวยๆ แทน Alert
     if (invalidNums.length > 0) {
         showError("มีเลขไม่ถูกต้อง พบเลข 4 หลักขึ้นไป");
+        
+        // ล้างผลลัพธ์เพื่อความชัวร์
         document.getElementById('duplicateResult').value = "";
         document.getElementById('uniqueResult').value = "";
         return; 
     }
 
+    // 3. ประมวลผล (ถ้าเลขผ่านหมด)
     const seenKeys = new Set();
     const duplicates = [];
     const uniqueList = [];
 
     validNums.forEach(num => {
+        // เช็กกลับเลข
         let key = num.split('').sort().join('');
+
         if (seenKeys.has(key)) {
             duplicates.push(num);
         } else {
@@ -312,6 +297,7 @@ function checkAndClean() {
         }
     });
 
+    // 4. แสดงผล
     document.getElementById('duplicateResult').value = duplicates.join(' ');
     document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
 }
@@ -323,31 +309,44 @@ function clearAll() {
     document.getElementById('inputNumbers').focus();
 }
 
+// ฟังก์ชันคัดลอก พร้อมแสดงข้อความสีเขียว
 function copyToClipboard(elementId, msgId) {
     const copyText = document.getElementById(elementId);
     if (!copyText.value) return;
+
     copyText.select();
-    copyText.setSelectionRange(0, 99999);
+    copyText.setSelectionRange(0, 99999); /* มือถือ */
+    
     navigator.clipboard.writeText(copyText.value).then(() => {
+        // แสดงข้อความ "คัดลอกแล้ว!"
         const msgSpan = document.getElementById(msgId);
         msgSpan.style.display = "inline-block";
-        setTimeout(() => { msgSpan.style.display = "none"; }, 2000);
+        
+        // ซ่อนข้อความหลังจากผ่านไป 2 วินาที
+        setTimeout(() => {
+            msgSpan.style.display = "none";
+        }, 2000);
     });
 }
 
+// ฟังก์ชันเปิด Modal แจ้งเตือน
 function showError(message) {
     document.getElementById("errorMsg").innerText = message;
     document.getElementById("errorModal").style.display = "block";
 }
 
+// ฟังก์ชันปิด Modal
 function closeModal() {
     document.getElementById("errorModal").style.display = "none";
     document.getElementById("inputNumbers").focus();
 }
 
+// กดพื้นที่ว่างรอบๆ Modal เพื่อปิดได้เหมือนกัน
 window.onclick = function(event) {
     const modal = document.getElementById("errorModal");
-    if (event.target == modal) closeModal();
+    if (event.target == modal) {
+        closeModal();
+    }
 }
 </script>
 
