@@ -8,7 +8,8 @@
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f3e5f5;
+            /* แก้ไขตรงนี้: เปลี่ยนจากม่วงอ่อน (#f3e5f5) เป็น เขียวอ่อน (#e8f5e9) */
+            background-color: #e8f5e9; 
             margin: 0;
             padding: 20px;
             display: flex;
@@ -28,7 +29,7 @@
 
         h2 {
             text-align: center;
-            color: #7b1fa2;
+            color: #2e7d32; /* ปรับสีหัวข้อให้เป็นเขียวเข้มเข้าธีม (ถ้าอยากได้ม่วงเหมือนเดิม แก้กลับเป็น #7b1fa2 ได้ครับ) */
             font-size: 28px;
             margin-bottom: 30px;
         }
@@ -69,7 +70,7 @@
 
         textarea:focus {
             outline: none;
-            border-color: #ba68c8;
+            border-color: #4caf50; /* เปลี่ยนสีขอบตอนกดเป็นสีเขียว */
         }
 
         .button-area {
@@ -297,7 +298,7 @@ function checkAndClean() {
         }
     });
 
-    // แก้ไข: ลบ .sort() ออก เพื่อให้เรียงตามลำดับที่พิมพ์มา
+    // แสดงผลแบบไม่เรียงเลข (ตามลำดับที่พิมพ์)
     document.getElementById('duplicateResult').value = duplicates.join(' ');
     document.getElementById('uniqueResult').value = uniqueList.join(' ');
 }
@@ -313,8 +314,7 @@ function copyToClipboard(elementId, msgId) {
     const copyText = document.getElementById(elementId);
     if (!copyText.value) return;
 
-    // แก้ไข: ลบคำสั่งครอบดำ (Select) ออก
-    // copyText.select(); 
+    // ไม่มีคำสั่ง select() (ไม่ครอบดำ)
     
     navigator.clipboard.writeText(copyText.value).then(() => {
         const msgSpan = document.getElementById(msgId);
