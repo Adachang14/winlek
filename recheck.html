@@ -44,7 +44,6 @@
         /* สไตล์รวมของช่องข้อความ */
         textarea {
             width: 100%;
-            /* ลบ height รวมออก เพื่อไปกำหนดแยกด้านล่าง */
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 15px;
@@ -55,18 +54,18 @@
             font-family: 'Sarabun', sans-serif;
         }
 
-        /* ---- จุดที่แก้: กำหนดความสูงแยกกันตรงนี้ครับ ---- */
+        /* ---- กำหนดความสูงแยกกัน ---- */
         
-        /* ช่องบน (วางเลข) เอาแค่ 120px พอ */
+        /* ช่องบน (วางเลข) */
         #inputNumbers {
             height: 120px;
         }
 
-        /* ช่องล่าง 2 ช่อง (ผลลัพธ์) เอาใหญ่ๆ 300px */
+        /* ช่องล่าง 2 ช่อง (ผลลัพธ์) สูงสะใจ */
         #duplicateResult, #uniqueResult {
             height: 250px;
         }
-        /* ------------------------------------------- */
+        /* -------------------------- */
 
         textarea:focus {
             outline: none;
@@ -107,6 +106,7 @@
         .btn-red { background-color: #d32f2f; }
         .btn-blue { background-color: #1976D2; }
         
+        /* ปุ่ม Copy */
         .btn-copy { background-color: #2196f3; font-size: 14px; padding: 10px 17px; min-width: auto; }
         .btn-copy-green { background-color: #4caf50; font-size: 14px; padding: 10px 17px; min-width: auto; }
         
@@ -297,8 +297,9 @@ function checkAndClean() {
         }
     });
 
+    // แก้ไข: ลบ .sort() ออก เพื่อให้เรียงตามลำดับที่พิมพ์มา
     document.getElementById('duplicateResult').value = duplicates.join(' ');
-    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
+    document.getElementById('uniqueResult').value = uniqueList.join(' ');
 }
 
 function clearAll() {
@@ -312,8 +313,8 @@ function copyToClipboard(elementId, msgId) {
     const copyText = document.getElementById(elementId);
     if (!copyText.value) return;
 
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
+    // แก้ไข: ลบคำสั่งครอบดำ (Select) ออก
+    // copyText.select(); 
     
     navigator.clipboard.writeText(copyText.value).then(() => {
         const msgSpan = document.getElementById(msgId);
