@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>วินเลข - ตรวจสอบตัวซ้ำ</title>
+    <title>วินเลข - ตรวจสอบตัวซ้ำ (Recheck)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ตั้งค่าพื้นฐาน */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f3e5f5; /* สีพื้นหลังม่วงอ่อน */
+            background-color: #fff9c4; /* พื้นหลังเหลืองพาสเทล */
             margin: 0;
             padding: 20px;
             display: flex;
@@ -18,178 +17,179 @@
             min-height: 100vh;
         }
 
-        /* กล่องคอนเทนเนอร์หลัก (สีขาว) */
         .main-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 700px; /* ความกว้างสูงสุด */
+            max-width: 800px;
             padding: 30px;
-            border-radius: 20px; /* มุมโค้งมน */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* เงาฟุ้งๆ */
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 2px solid #fbc02d; /* ขอบสีเหลืองเข้ม */
         }
 
-        /* หัวข้อหลัก */
         h2 {
             text-align: center;
-            color: #7b1fa2; /* สีม่วงเข้ม */
-            font-size: 28px;
-            margin-bottom: 30px;
+            color: #f57f17; /* หัวข้อสีส้มทอง */
+            font-size: 30px;
+            margin-bottom: 25px;
+            font-weight: 700;
         }
 
-        /* ป้ายกำกับ (Label) */
         label {
             font-weight: bold;
-            color: #555;
+            color: #444;
             display: block;
             margin-bottom: 10px;
             font-size: 18px;
         }
 
-        /* ช่องกรอกข้อความ (Textarea) */
         textarea {
             width: 100%;
-            height: 120px;
+            height: 150px;
             padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px; /* มุมโค้ง */
-            font-size: 16px;
+            border: 2px solid #fff176;
+            border-radius: 15px;
+            font-size: 18px;
+            background-color: #fffde7;
             color: #333;
             box-sizing: border-box;
-            resize: vertical; /* ให้ยืดหดได้เเค่แนวตั้ง */
+            resize: vertical;
             font-family: 'Sarabun', sans-serif;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #ba68c8; /* เปลี่ยนสีขอบตอนคลิก */
+            transition: 0.3s;
         }
 
-        /* พื้นที่สำหรับปุ่ม */
+        textarea:focus {
+            outline: none;
+            border-color: #fbc02d;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(251, 192, 45, 0.2);
+        }
+
         .button-area {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin: 25px 0;
-            flex-wrap: wrap; /* ให้ปุ่มขึ้นบรรทัดใหม่ถ้ายาวเกิน */
+            flex-wrap: wrap;
         }
 
-        /* ดีไซน์ปุ่มกด */
         .btn {
-            padding: 12px 25px;
+            padding: 14px 30px;
             border: none;
-            border-radius: 50px; /* ปุ่มทรงแคปซูล */
-            font-size: 16px;
+            border-radius: 50px;
+            font-size: 18px;
             font-weight: bold;
             color: white;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
+
         .btn:hover {
-            transform: translateY(-2px); /* ขยับขึ้นนิดนึงตอนเอาเมาส์ชี้ */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        .btn:active {
-            transform: translateY(1px); /* ยุบลงตอนกด */
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
 
-        /* สีปุ่มต่างๆ */
-        .btn-purple { background-color: #9c27b0; }
-        .btn-blue { background-color: #2196f3; }
-        .btn-green { background-color: #4caf50; }
-        .btn-orange { background-color: #ff9800; }
-        
-        /* ไอคอนในปุ่ม (ใช้ Emoji ไปก่อน) */
-        .icon { font-size: 18px; }
+        .btn:active { transform: translateY(0); }
 
-        /* ส่วนแสดงผลลัพธ์ */
+        /* สีปุ่มสไตล์วินเลข */
+        .btn-process { background-color: #ffb300; } /* ส้มทอง */
+        .btn-clear { background-color: #9e9e9e; }   /* เทา */
+        .btn-copy-dup { background-color: #ef5350; } /* แดงพาสเทล */
+        .btn-copy-final { background-color: #66bb6a; } /* เขียวพาสเทล */
+
         .result-section {
             margin-top: 30px;
-            border-top: 2px dashed #e0e0e0;
+            border-top: 2px dashed #eee;
             padding-top: 20px;
         }
+
         .result-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* แบ่งเป็น 2 คอลัมน์ */
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        @media (max-width: 600px) {
-            .result-grid {
-                grid-template-columns: 1fr; /* มือถือให้เรียงลงมา */
-            }
+
+        @media (max-width: 650px) {
+            .result-grid { grid-template-columns: 1fr; }
         }
 
-        /* กล่องผลลัพธ์ย่อย */
         .result-box {
-            background-color: #f9f9f9;
+            background-color: #fafafa;
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 20px;
+            border: 1px solid #f0f0f0;
         }
-        .result-box label {
-            font-size: 16px;
-        }
-        /* สีหัวข้อผลลัพธ์ */
-        .label-dup { color: #d32f2f; } /* สีแดง */
-        .label-unique { color: #388e3c; } /* สีเขียว */
 
+        .label-dup { color: #d32f2f; }
+        .label-unique { color: #2e7d32; }
+
+        .res-textarea { height: 100px; font-size: 16px; background-color: #fff; }
+
+        .copy-box {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .stats-text {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h2>✨ วินเลข - ตรวจสอบและคัดแยกตัวซ้ำ</h2>
+    <h2>🟡 วินเลข - ตรวจสอบตัวซ้ำ</h2>
 
     <div>
-        <label for="inputNumbers">📝 วางชุดตัวเลขที่ต้องการตรวจสอบ:</label>
-        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 12 34 12 56 78 34... (วางปุ๊บ รู้ปั๊บ!)"></textarea>
+        <label>📝 วางตัวเลขที่นี่ (คั่นด้วยเว้นวรรค หรือขึ้นบรรทัดใหม่):</label>
+        <textarea id="inputNumbers" placeholder="ตัวอย่าง: 01 05 01 09 10 05..."></textarea>
     </div>
 
     <div class="button-area">
-        <button onclick="checkAndClean()" class="btn btn-purple">
-            <span class="icon">🚀</span> ประมวลผลทันที
-        </button>
-        <button onclick="clearAll()" class="btn btn-orange">
-            <span class="icon">🧹</span> เริ่มใหม่ (ล้างข้อมูล)
-        </button>
+        <button onclick="checkAndClean()" class="btn btn-process">🚀 ประมวลผล</button>
+        <button onclick="clearAll()" class="btn btn-clear">🧹 ล้างข้อมูล</button>
     </div>
 
     <div class="result-section">
         <div class="result-grid">
             <div class="result-box">
-                <label class="label-dup">❌ รายการเลขที่ "ซ้ำ" กัน:</label>
-                <textarea id="duplicateResult" readonly placeholder="ตัวซ้ำจะโผล่ที่นี่..."></textarea>
-                <div style="text-align: right; margin-top: 5px;">
-                    <button onclick="copyToClipboard('duplicateResult')" class="btn btn-blue" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
-                        <span class="icon">📋</span> คัดลอก
+                <label class="label-dup">❌ รายการเลขที่ซ้ำ:</label>
+                <span id="dupCount" class="stats-text">พบซ้ำ: 0 ตัว</span>
+                <textarea id="duplicateResult" class="res-textarea" readonly></textarea>
+                <div class="copy-box">
+                    <button onclick="copyToClipboard('duplicateResult')" class="btn btn-copy-dup" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
+                        📋 คัดลอกตัวซ้ำ
                     </button>
                 </div>
             </div>
 
             <div class="result-box">
-                <label class="label-unique">✅ ผลลัพธ์ "พร้อมใช้" (คัดแล้ว):</label>
-                <textarea id="uniqueResult" readonly placeholder="เลขเด็ดที่คัดแล้ว รออยู่ตรงนี้..."></textarea>
-                <div style="text-align: right; margin-top: 5px;">
-                    <button onclick="copyToClipboard('uniqueResult')" class="btn btn-green" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
-                        <span class="icon">📋</span> คัดลอก
+                <label class="label-unique">✅ ผลลัพธ์ (ตัดซ้ำออกแล้ว):</label>
+                <span id="uniqueCount" class="stats-text">คงเหลือ: 0 ตัว</span>
+                <textarea id="uniqueResult" class="res-textarea" readonly></textarea>
+                <div class="copy-box">
+                    <button onclick="copyToClipboard('uniqueResult')" class="btn btn-copy-final" style="padding: 8px 15px; font-size: 14px; display: inline-flex;">
+                        📋 คัดลอกผลลัพธ์
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
-// ฟังก์ชันประมวลผลหลัก (เหมือนเดิมเป๊ะ)
 function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
-    if (!input.trim()) {
-        alert("กรุณาวางตัวเลขก่อนกดประมวลผลนะครับ!");
-        return;
-    }
-    
-    const allNums = input.split(/[\s,\n]+/).filter(n => n.trim() !== "");
+    if (!input.trim()) return alert("กรุณาใส่ข้อมูลก่อนครับ");
+
+    // ดึงเฉพาะตัวเลขออกมา
+    const allNums = input.split(/[\s,\n,]+/).filter(n => n.trim() !== "");
     
     const seen = new Set();
     const duplicates = new Set();
@@ -204,45 +204,38 @@ function checkAndClean() {
         }
     });
 
-    document.getElementById('duplicateResult').value = Array.from(duplicates).join(' ');
-    // เรียงเลขจากน้อยไปมากให้ด้วย
-    document.getElementById('uniqueResult').value = uniqueList.sort((a, b) => a - b).join(' ');
+    // แสดงผลตัวซ้ำ
+    const dupArr = Array.from(duplicates).sort();
+    document.getElementById('duplicateResult').value = dupArr.join(' ');
+    document.getElementById('dupCount').innerText = `พบซ้ำ: ${dupArr.length} ตัว`;
+    
+    // แสดงผลตัวที่คัดแล้ว (เรียงน้อยไปมาก)
+    const finalArr = uniqueList.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    document.getElementById('uniqueResult').value = finalArr.join(' ');
+    document.getElementById('uniqueCount').innerText = `คงเหลือ: ${finalArr.length} ตัว`;
 }
 
-// ฟังก์ชันล้างข้อมูล
 function clearAll() {
     document.getElementById('inputNumbers').value = '';
     document.getElementById('duplicateResult').value = '';
     document.getElementById('uniqueResult').value = '';
+    document.getElementById('dupCount').innerText = 'พบซ้ำ: 0 ตัว';
+    document.getElementById('uniqueCount').innerText = 'คงเหลือ: 0 ตัว';
     document.getElementById('inputNumbers').focus();
 }
 
-// ฟังก์ชันคัดลอก
 function copyToClipboard(elementId) {
     const copyText = document.getElementById(elementId);
-    if (!copyText.value) return; // ถ้าไม่มีข้อมูล ไม่ต้องก๊อป
+    if (!copyText.value) return;
 
     copyText.select();
-    copyText.setSelectionRange(0, 99999); /* สำหรับมือถือ */
-    
-    navigator.clipboard.writeText(copyText.value)
-        .then(() => {
-            // แจ้งเตือนเล็กๆ ว่าก๊อปแล้ว (Optional: ทำเป็น Toast สวยๆ ทีหลังได้)
-            // alert("คัดลอกเรียบร้อย!"); 
-            // เปลี่ยนข้อความปุ่มชั่วคราว
-            const btn = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "<span class='icon'>✅</span> คัดลอกแล้ว!";
-            btn.style.backgroundColor = "#4caf50";
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.style.backgroundColor = ""; // กลับไปสีเดิม
-            }, 1500);
-        })
-        .catch(err => {
-            console.error('Could not copy text: ', err);
-            alert('เกิดข้อผิดพลาดในการคัดลอก');
-        });
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value).then(() => {
+        const btn = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "✅ สำเร็จ!";
+        setTimeout(() => { btn.innerHTML = originalText; }, 1200);
+    });
 }
 </script>
 
