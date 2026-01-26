@@ -20,7 +20,7 @@
         .main-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 800px; /* ขยายความกว้างรวมนิดหน่อย */
+            max-width: 900px; /* ขยายความกว้างรวมอีกนิดให้ช่องใหญ่ๆ ดูสมดุล */
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -41,18 +41,17 @@
             font-size: 18px;
         }
 
-        /* ช่องกรอกข้อมูลด้านบน */
-        #inputNumbers {
+        /* สไตล์พื้นฐานของทุกช่องข้อความ */
+        textarea {
             width: 100%;
-            height: 120px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 15px;
             font-size: 16px;
             color: #333;
             box-sizing: border-box;
-            resize: vertical;
             font-family: 'Sarabun', sans-serif;
+            background-color: white;
         }
 
         textarea:focus {
@@ -60,7 +59,23 @@
             border-color: #ba68c8;
         }
 
-        /* พื้นที่ปุ่ม 3 ปุ่ม */
+        /* --- ตั้งค่าเฉพาะเจาะจง --- */
+
+        /* 1. ช่องบน (วางเลข): ขนาดปกติ */
+        #inputNumbers {
+            height: 120px; 
+            resize: vertical; /* ให้ลากปรับสูงต่ำได้ */
+        }
+
+        /* 2. ช่องล่าง (ผลลัพธ์): ขนาดใหญ่ + ลากปรับได้ */
+        #duplicateResult, #uniqueResult {
+            height: 300px; /* สูงสะใจ */
+            resize: vertical; /* เปิดให้ลากมุมขวาล่างได้! */
+            font-size: 20px; /* ตัวเลขใหญ่ขึ้นอีกนิดให้อ่านง่าย */
+        }
+
+        /* ----------------------- */
+
         .button-area {
             display: flex;
             justify-content: center;
@@ -85,17 +100,12 @@
             text-decoration: none;
             min-width: 120px;
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
         .btn-purple { background-color: #9c27b0; }
         .btn-red { background-color: #d32f2f; }
         .btn-blue { background-color: #1976D2; }
 
-        /* ส่วนแสดงผลลัพธ์ */
         .result-section {
             margin-top: 30px;
             border-top: 2px dashed #e0e0e0;
@@ -116,31 +126,15 @@
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 15px;
-            position: relative;
         }
 
-        /* ปรับขนาดช่องผลลัพธ์ให้ใหญ่ขึ้นตามภาพ */
-        .result-box textarea {
-            width: 100%;
-            height: 300px; /* สูงสะใจ */
-            padding: 15px;
-            border: 2px solid #ddd; /* ขอบจางๆ */
-            border-radius: 15px;
-            font-size: 18px; /* ตัวเลขใหญ่ขึ้น */
-            color: #333;
-            box-sizing: border-box;
-            resize: none; /* ล็อคขนาดไม่ให้ยืดหด */
-            font-family: 'Sarabun', sans-serif;
-            background-color: white; /* พื้นหลังขาว */
-        }
+        .label-dup { color: #d32f2f; font-size: 20px; }
+        .label-unique { color: #388e3c; font-size: 20px; }
 
-        .label-dup { color: #d32f2f; font-size: 20px; margin-bottom: 15px; }
-        .label-unique { color: #388e3c; font-size: 20px; margin-bottom: 15px; }
-
-        /* ปุ่ม Copy ที่ขยายใหญ่ขึ้น */
+        /* ปุ่ม Copy ใหญ่ */
         .btn-copy-lg {
-            font-size: 16px;
-            padding: 10px 30px; /* กว้างขึ้น */
+            font-size: 18px; /* ตัวหนังสือใหญ่ */
+            padding: 12px 35px; /* ปุ่มกว้าง */
             border-radius: 50px;
             border: none;
             color: white;
@@ -166,7 +160,7 @@
             vertical-align: middle;
         }
 
-        /* ============ Modal แจ้งเตือน ============ */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -282,12 +276,10 @@ function checkAndClean() {
     const input = document.getElementById('inputNumbers').value;
     if (!input.trim()) return;
     
-    // ดึงเฉพาะกลุ่มตัวเลข
     let allNums = input.match(/\d+/g);
     
     if (!allNums || allNums.length === 0) return;
 
-    // ตรวจสอบเลขเกิน 3 หลัก
     const invalidNums = [];
     const validNums = [];
 
@@ -334,10 +326,8 @@ function clearAll() {
 function copyToClipboard(elementId, msgId) {
     const copyText = document.getElementById(elementId);
     if (!copyText.value) return;
-
     copyText.select();
     copyText.setSelectionRange(0, 99999);
-    
     navigator.clipboard.writeText(copyText.value).then(() => {
         const msgSpan = document.getElementById(msgId);
         msgSpan.style.display = "inline-block";
