@@ -43,7 +43,7 @@
     justify-content:center;
     flex-wrap:wrap;
   }
-  
+   
   /* แถวปุ่มเพิ่มเติม (Copy แยก) */
   .btn-row-sub{
     margin-top:10px;
@@ -55,7 +55,7 @@
     border-top: 1px dashed #ddd;
   }
 
-  /* ✅ แก้กลับเป็นขนาดที่คุณทำไว้ตอนแรก (พอดีเป๊ะ) */
+  /* ✅ ขนาดปุ่มเดิม */
   button{
     padding:11px 19px;
     font-size:15px;
@@ -67,13 +67,13 @@
     transition: transform 0.1s;
   }
   button:active { transform: scale(0.95); }
-  
+   
   /* สีปุ่มต่างๆ */
   .btn-run{ background:#8e24aa; } /* ม่วง */
   .btn-clear{ background:#ff5722; } /* ส้ม */
   .btn-copy-all{ background:#2196f3; } /* ฟ้า */
   .btn-home{ background:#607d8b; } /* เทา */
-  
+   
   .btn-copy-2{ background:#00897b; } /* เขียวเข้ม */
   .btn-copy-3{ background:#d81b60; } /* ชมพูเข้ม */
 
@@ -96,7 +96,7 @@
     font-weight:800;
   }
 
-  /* สไตล์ Popup แจ้งเตือนใหม่ */
+  /* สไตล์ Popup แจ้งเตือน */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -139,9 +139,7 @@
 <div class="box">
   <h2>วินเลขรวม(2ตัว+3ตัว ผลลัพที่ได้ยังไม่ได้กลับ)</h2>
 
-  <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย เช่น
-123
-4567"></textarea>
+  <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย (ระบบจะตัดราคา/เลข 1-2 ตัวทิ้งอัตโนมัติ)"></textarea>
 
   <div class="btn-row">
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
@@ -180,10 +178,12 @@
     return /(.).*\1/.test(str);
   }
 
+  // ✅ แก้ไข: กรองเอาเฉพาะเลขที่มี 3 หลักขึ้นไปเท่านั้น (ตัด 1-2 หลักทิ้งเหมือนตัวหนังสือ)
   function normalizeToSets(raw){
     const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
     if(!cleaned) return [];
-    return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
+    // filter(s => s.length >= MIN_LEN) คือตัวกรองเลขน้อยกว่า 3 หลักทิ้ง
+    return cleaned.split(/\n+/).map(s => s.trim()).filter(s => s.length >= MIN_LEN);
   }
 
   function getCombinations(chars, size) {
@@ -201,12 +201,11 @@
     return result;
   }
 
-  // ฟังก์ชันเปิด Popup แจ้งเตือน (ก๊อปข้อความได้)
   function openModal(text, showCopyBtn = false) {
     const modal = document.getElementById('customModal');
     const msgBox = document.getElementById('modalMsg');
     const copyBtn = document.getElementById('modalCopyBtn');
-    
+     
     msgBox.textContent = text;
     copyBtn.style.display = showCopyBtn ? 'block' : 'none';
     modal.style.display = 'flex';
@@ -229,31 +228,20 @@
 
   function validateSets(sets){
     let realIndex = 0;
-    const bad = [];
+    // ไม่ต้องเช็คความยาวแล้ว เพราะ normalizeToSets ตัดทิ้งไปหมดแล้ว
+    // เช็คแค่เลขซ้ำในชุดพอ
 
     for (let i=0;i<sets.length;i++){
       const num = sets[i];
       if(!num) continue;
       realIndex++;
 
-      if(num.length < MIN_LEN){
-        bad.push(`ชุดที่${toThaiNumber(realIndex)} (${num})`);
-        continue;
-      }
-
       if(hasDuplicates(num)){
         const alertMsg = "❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")";
-        openModal(alertMsg, true); // เปิด Popup และโชว์ปุ่มก๊อปด่วน
+        openModal(alertMsg, true); 
         return { ok:false };
       }
     }
-
-    if(bad.length){
-      const alertMsg = "❗️มีชุดที่ผิด (ต้องอย่างน้อย 3 ตัว)\n" + bad.join("\n") + "\n\nแก้ให้ครบก่อนนะ แล้วค่อยวินใหม่";
-      openModal(alertMsg, false);
-      return { ok:false };
-    }
-
     return { ok:true };
   }
 
@@ -262,7 +250,8 @@
     const sets = normalizeToSets(raw);
 
     if(sets.length === 0){
-      document.getElementById("output").textContent = "กรุณาพิมพ์เลขอย่างน้อย 3 ตัวต่อชุด";
+      // ถ้าตัดเลข 1-2 หลักออกหมดแล้วไม่เหลืออะไรเลย
+      document.getElementById("output").textContent = "ไม่พบชุดเลขสำหรับวิน (ต้องมี 3 ตัวขึ้นไป)";
       document.getElementById("copied").style.display = "none";
       return;
     }
