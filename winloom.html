@@ -55,7 +55,6 @@
     border-top: 1px dashed #ddd;
   }
 
-  /* ✅ ขนาดปุ่มเดิม */
   button{
     padding:11px 19px;
     font-size:15px;
@@ -178,11 +177,12 @@
     return /(.).*\1/.test(str);
   }
 
-  // ✅ แก้ไข: กรองเอาเฉพาะเลขที่มี 3 หลักขึ้นไปเท่านั้น (ตัด 1-2 หลักทิ้งเหมือนตัวหนังสือ)
+  // ฟังก์ชันแยกเลขและกรองเอาเฉพาะ 3 หลักขึ้นไป
   function normalizeToSets(raw){
+    // แปลงทุกอย่างที่ไม่ใช่ตัวเลขให้เป็นบรรทัดใหม่
     const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
     if(!cleaned) return [];
-    // filter(s => s.length >= MIN_LEN) คือตัวกรองเลขน้อยกว่า 3 หลักทิ้ง
+    // กรองเอาเฉพาะชุดที่มีความยาว 3 ตัวขึ้นไป (ตัด 1-2 ตัวทิ้ง)
     return cleaned.split(/\n+/).map(s => s.trim()).filter(s => s.length >= MIN_LEN);
   }
 
@@ -228,9 +228,6 @@
 
   function validateSets(sets){
     let realIndex = 0;
-    // ไม่ต้องเช็คความยาวแล้ว เพราะ normalizeToSets ตัดทิ้งไปหมดแล้ว
-    // เช็คแค่เลขซ้ำในชุดพอ
-
     for (let i=0;i<sets.length;i++){
       const num = sets[i];
       if(!num) continue;
@@ -247,10 +244,14 @@
 
   function run(){
     const raw = document.getElementById("input").value;
-    const sets = normalizeToSets(raw);
+    const sets = normalizeToSets(raw); // เลข 1-2 หลัก จะถูกกรองทิ้งที่นี่
+
+    // ** เพิ่มใหม่: อัปเดตหน้าจอให้แสดงเฉพาะเลขที่ถูกต้อง **
+    if(sets.length > 0) {
+        document.getElementById("input").value = sets.join("\n");
+    }
 
     if(sets.length === 0){
-      // ถ้าตัดเลข 1-2 หลักออกหมดแล้วไม่เหลืออะไรเลย
       document.getElementById("output").textContent = "ไม่พบชุดเลขสำหรับวิน (ต้องมี 3 ตัวขึ้นไป)";
       document.getElementById("copied").style.display = "none";
       return;
@@ -326,17 +327,13 @@
 
   function goHome(){ window.location.href = "index.html"; }
 
+  // เอาการตรวจสอบ Input แบบ Realtime ออก เพื่อไม่ให้มันเด้งจัดบรรทัดเองตอนวาง
+  // จะไปจัดระเบียบทีเดียวตอนกดปุ่ม Run
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
       run();
     }
-  });
-
-  document.getElementById("input").addEventListener("input", function(){
-    const before = this.value;
-    const after = before.replace(/[^\d]+/g, '\n');
-    if(before !== after) this.value = after;
   });
 
   window.addEventListener("load", () => document.getElementById("input").focus());
