@@ -200,12 +200,17 @@
     return result;
   }
 
-  function openModal(text, showCopyBtn = false) {
+  // ✅ แก้ไข: รับค่า text สำหรับ copy แยกต่างหาก
+  function openModal(displayText, copyText, showCopyBtn = false) {
     const modal = document.getElementById('customModal');
     const msgBox = document.getElementById('modalMsg');
     const copyBtn = document.getElementById('modalCopyBtn');
      
-    msgBox.textContent = text;
+    msgBox.textContent = displayText;
+    
+    // ฝังข้อความที่จะ copy ไว้ในปุ่มเลย (เพื่อให้กดแล้วได้ข้อความที่ถูกต้อง)
+    copyBtn.setAttribute('data-copy', copyText);
+
     copyBtn.style.display = showCopyBtn ? 'block' : 'none';
     modal.style.display = 'flex';
   }
@@ -216,30 +221,52 @@
   }
 
   function copyQuickMsg() {
-    // ✅ จุดแก้ที่ 2: ดึงข้อความจากหน้าจอมา copy เลย (จะได้ตรงกับที่โชว์)
-    const text = document.getElementById('modalMsg').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('modalCopyBtn');
+    // ✅ แก้ไข: ดึงข้อความจาก data-copy แทน (จะได้ไม่เอาคำว่า "❗️เลขซ้ำเเจ้งลค.=" ติดไปด้วย)
+    const btn = document.getElementById('modalCopyBtn');
+    const textToCopy = btn.getAttribute('data-copy');
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
       const oldText = btn.innerText;
       btn.innerText = "✅ คัดลอกแล้ว!";
       setTimeout(() => btn.innerText = oldText, 1500);
     });
   }
 
+  // ✅ แก้ไข: วนลูปหาเลขซ้ำให้ครบทุกชุด แล้วค่อยแจ้งเตือนทีเดียว
   function validateSets(sets){
+    let errors = []; // เก็บรายการเลขซ้ำทั้งหมด
     let realIndex = 0;
-    for (let i=0;i<sets.length;i++){
+
+    for (let i=0; i<sets.length; i++){
       const num = sets[i];
       if(!num) continue;
       realIndex++;
 
       if(hasDuplicates(num)){
-        // ✅ จุดแก้ที่ 1: ปรับข้อความตามสั่ง และใช้ realIndex (เลขอารบิก) แทน
-        const alertMsg = "❗️เลขซ้ำเเจ้งลค.=เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่(พบในชุดที่ " + realIndex + " : " + num + ")";
-        openModal(alertMsg, true); 
-        return { ok:false };
+        // เจอเลขซ้ำ เก็บใส่ตะกร้าไว้ก่อน
+        errors.push(`(พบในชุดที่ ${realIndex} : ${num})`);
       }
     }
+
+    // ถ้ามี error อย่างน้อย 1 อัน ให้แสดงผล
+    if(errors.length > 0){
+        // สร้างส่วนหัวข้อความ (บรรทัดแรก)
+        const firstError = errors[0];
+        
+        // ส่วนเสริม (ถ้ามีหลายชุด) ให้ขึ้นบรรทัดใหม่
+        const otherErrors = errors.slice(1).join("\n"); 
+        const tail = otherErrors ? "\n" + otherErrors : "";
+
+        // 1. ข้อความสำหรับโชว์ในกล่อง (มีหัวข้อ ❗️เลขซ้ำเเจ้งลค.=)
+        const displayMsg = "❗️เลขซ้ำเเจ้งลค.=เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่ " + firstError + tail;
+
+        // 2. ข้อความสำหรับก๊อปปี้ (ตัดหัวข้อทิ้ง เอาแค่ "เลขซ้ำจ้า...")
+        const copyMsg = "เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่ " + firstError + tail;
+
+        openModal(displayMsg, copyMsg, true);
+        return { ok:false };
+    }
+
     return { ok:true };
   }
 
@@ -310,7 +337,7 @@
         else if(digits === 3 && item.triplets.length > 0) textToCopy += item.triplets.join(" ") + " ";
     });
     if(!textToCopy.trim()) {
-        openModal("ไม่มีเลข " + digits + " ตัว ให้คัดลอก", false);
+        openModal("ไม่มีเลข " + digits + " ตัว ให้คัดลอก", "", false);
         return;
       }
     copyToClipboard(textToCopy.trim(), `คัดลอกเฉพาะ ${digits} ตัวแล้ว!`);
