@@ -216,7 +216,8 @@
   }
 
   function copyQuickMsg() {
-    const text = "เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่";
+    // ✅ จุดแก้ที่ 2: ดึงข้อความจากหน้าจอมา copy เลย (จะได้ตรงกับที่โชว์)
+    const text = document.getElementById('modalMsg').textContent;
     navigator.clipboard.writeText(text).then(() => {
       const btn = document.getElementById('modalCopyBtn');
       const oldText = btn.innerText;
@@ -233,7 +234,8 @@
       realIndex++;
 
       if(hasDuplicates(num)){
-        const alertMsg = "❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(realIndex) + " : " + num + ")";
+        // ✅ จุดแก้ที่ 1: ปรับข้อความตามสั่ง และใช้ realIndex (เลขอารบิก) แทน
+        const alertMsg = "เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่(พบในชุดที่ " + realIndex + " : " + num + ")";
         openModal(alertMsg, true); 
         return { ok:false };
       }
@@ -245,8 +247,6 @@
     const raw = document.getElementById("input").value;
     const sets = normalizeToSets(raw);
 
-    // อัปเดตหน้าจอให้เหลือแต่เลขเนื้อๆ ทันที
-    // แสดงผลบรรทัดละ 1 ชุด
     if(sets.length > 0) {
         document.getElementById("input").value = sets.join("\n");
     }
@@ -327,28 +327,20 @@
 
   function goHome(){ window.location.href = "index.html"; }
 
-  // ควบคุมปุ่มกด (Keyboard Logic)
   document.getElementById("input").addEventListener("keydown", function(e){
-    // 1. กด Enter = สั่งคำนวณ (Run)
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
       run();
     }
-    // 2. กด Spacebar = ขึ้นบรรทัดใหม่
     else if(e.key === " "){
-        e.preventDefault(); // ห้ามเว้นวรรค
-        
-        // ใส่ \n (ขึ้นบรรทัดใหม่) ตรงจุดที่เคอร์เซอร์อยู่
+        e.preventDefault(); 
         const start = this.selectionStart;
         const end = this.selectionEnd;
         this.value = this.value.substring(0, start) + "\n" + this.value.substring(end);
-        
-        // ขยับเคอร์เซอร์ไปหลังบรรทัดใหม่
         this.selectionStart = this.selectionEnd = start + 1;
     }
   });
 
-  // ควบคุมการวาง (Paste Logic)
   document.getElementById("input").addEventListener("paste", function(e){
     setTimeout(() => {
         const raw = this.value;
