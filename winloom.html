@@ -138,7 +138,7 @@
 <div class="box">
   <h2>วินเลขรวม(2ตัว+3ตัว ผลลัพที่ได้ยังไม่ได้กลับ)</h2>
 
-  <textarea id="input" placeholder="พิมพ์/วางเลขได้เลย (ระบบจะตัดราคา/เลข 1-2 ตัวทิ้งอัตโนมัติ)"></textarea>
+  <textarea id="input" placeholder="วางโพยที่นี่... ระบบจะตัดราคาและตัวหนังสือทิ้งให้อัตโนมัติทันที!"></textarea>
 
   <div class="btn-row">
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
@@ -177,12 +177,13 @@
     return /(.).*\1/.test(str);
   }
 
-  // ฟังก์ชันแยกเลขและกรองเอาเฉพาะ 3 หลักขึ้นไป
+  // ฟังก์ชันพระเอก: กรองเลขและจัดระเบียบ
   function normalizeToSets(raw){
-    // แปลงทุกอย่างที่ไม่ใช่ตัวเลขให้เป็นบรรทัดใหม่
+    // 1. แปลงตัวที่ไม่ใช่เลข เป็นช่องว่าง/บรรทัดใหม่
     const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
     if(!cleaned) return [];
-    // กรองเอาเฉพาะชุดที่มีความยาว 3 ตัวขึ้นไป (ตัด 1-2 ตัวทิ้ง)
+    
+    // 2. กรองเอาเฉพาะเลขที่มี 3 หลักขึ้นไป
     return cleaned.split(/\n+/).map(s => s.trim()).filter(s => s.length >= MIN_LEN);
   }
 
@@ -243,10 +244,11 @@
   }
 
   function run(){
+    // กดปุ่ม Run ก็จะคลีนให้อีกรอบเพื่อความชัวร์
     const raw = document.getElementById("input").value;
-    const sets = normalizeToSets(raw); // เลข 1-2 หลัก จะถูกกรองทิ้งที่นี่
+    const sets = normalizeToSets(raw);
 
-    // ** เพิ่มใหม่: อัปเดตหน้าจอให้แสดงเฉพาะเลขที่ถูกต้อง **
+    // อัปเดตหน้าจอให้เหลือแต่เลขเนื้อๆ ทันที
     if(sets.length > 0) {
         document.getElementById("input").value = sets.join("\n");
     }
@@ -327,13 +329,23 @@
 
   function goHome(){ window.location.href = "index.html"; }
 
-  // เอาการตรวจสอบ Input แบบ Realtime ออก เพื่อไม่ให้มันเด้งจัดบรรทัดเองตอนวาง
-  // จะไปจัดระเบียบทีเดียวตอนกดปุ่ม Run
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
       run();
     }
+  });
+
+  // ✅ พระเอกคนใหม่: Event Listener สำหรับการ "วาง" (Paste)
+  document.getElementById("input").addEventListener("paste", function(e){
+    // รอเสี้ยววินาทีเพื่อให้ข้อมูลลงในกล่องก่อน แล้วค่อยจัดการ
+    setTimeout(() => {
+        const raw = this.value;
+        const sets = normalizeToSets(raw); // ใช้ฟังก์ชันกรองตัวเดิม
+        if(sets.length > 0) {
+            this.value = sets.join("\n"); // แทนที่ด้วยตัวที่กรองแล้วทันที
+        }
+    }, 50);
   });
 
   window.addEventListener("load", () => document.getElementById("input").focus());
