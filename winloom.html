@@ -138,7 +138,8 @@
 <div class="box">
   <h2>วินเลขรวม(2ตัว+3ตัว ผลลัพที่ได้ยังไม่ได้กลับ)</h2>
 
-  <textarea id="input" placeholder="วางโพยที่นี่... ระบบจะตัดราคาและตัวหนังสือทิ้งให้อัตโนมัติทันที!"></textarea>
+  <textarea id="input" placeholder="พิมพ์เลขแล้วเคาะ Spacebar จะขึ้นบรรทัดใหม่ให้
+(Enter = คำนวณทันที)"></textarea>
 
   <div class="btn-row">
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
@@ -177,14 +178,11 @@
     return /(.).*\1/.test(str);
   }
 
-  // ฟังก์ชันพระเอก: กรองเลขและจัดระเบียบ
   function normalizeToSets(raw){
-    // 1. แปลงตัวที่ไม่ใช่เลข เป็นช่องว่าง/บรรทัดใหม่
-    const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
+    // แปลงทุกอย่างที่ไม่ใช่เลขเป็นช่องว่าง แล้วกรองเอาเฉพาะ 3 หลักขึ้นไป
+    const cleaned = raw.replace(/[^\d]+/g, ' ').trim();
     if(!cleaned) return [];
-    
-    // 2. กรองเอาเฉพาะเลขที่มี 3 หลักขึ้นไป
-    return cleaned.split(/\n+/).map(s => s.trim()).filter(s => s.length >= MIN_LEN);
+    return cleaned.split(/\s+/).map(s => s.trim()).filter(s => s.length >= MIN_LEN);
   }
 
   function getCombinations(chars, size) {
@@ -244,11 +242,11 @@
   }
 
   function run(){
-    // กดปุ่ม Run ก็จะคลีนให้อีกรอบเพื่อความชัวร์
     const raw = document.getElementById("input").value;
     const sets = normalizeToSets(raw);
 
     // อัปเดตหน้าจอให้เหลือแต่เลขเนื้อๆ ทันที
+    // แสดงผลบรรทัดละ 1 ชุด
     if(sets.length > 0) {
         document.getElementById("input").value = sets.join("\n");
     }
@@ -329,21 +327,34 @@
 
   function goHome(){ window.location.href = "index.html"; }
 
+  // ควบคุมปุ่มกด (Keyboard Logic)
   document.getElementById("input").addEventListener("keydown", function(e){
+    // 1. กด Enter = สั่งคำนวณ (Run)
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
       run();
     }
+    // 2. กด Spacebar = ขึ้นบรรทัดใหม่
+    else if(e.key === " "){
+        e.preventDefault(); // ห้ามเว้นวรรค
+        
+        // ใส่ \n (ขึ้นบรรทัดใหม่) ตรงจุดที่เคอร์เซอร์อยู่
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "\n" + this.value.substring(end);
+        
+        // ขยับเคอร์เซอร์ไปหลังบรรทัดใหม่
+        this.selectionStart = this.selectionEnd = start + 1;
+    }
   });
 
-  // ✅ พระเอกคนใหม่: Event Listener สำหรับการ "วาง" (Paste)
+  // ควบคุมการวาง (Paste Logic)
   document.getElementById("input").addEventListener("paste", function(e){
-    // รอเสี้ยววินาทีเพื่อให้ข้อมูลลงในกล่องก่อน แล้วค่อยจัดการ
     setTimeout(() => {
         const raw = this.value;
-        const sets = normalizeToSets(raw); // ใช้ฟังก์ชันกรองตัวเดิม
+        const sets = normalizeToSets(raw);
         if(sets.length > 0) {
-            this.value = sets.join("\n"); // แทนที่ด้วยตัวที่กรองแล้วทันที
+            this.value = sets.join("\n");
         }
     }, 50);
   });
